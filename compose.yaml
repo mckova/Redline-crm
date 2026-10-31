@@ -1,0 +1,10 @@
+services:
+  kesher:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      KESHER_SECRET: change-me-in-production-please
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes: ["kesher-data:/data"]
+volumes:
+  kesher-data:
