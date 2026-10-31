@@ -288,7 +288,7 @@ function LogCall({ row, onDrafted }: { row: Row; onDrafted: () => void }) {
 
 function describe(a: Activity): string {
   const [obj, verb] = a.name.replace("linked-", "").split(".");
-  if (a.linked) return `${t(obj === "task" ? "Task" : obj === "note" ? "Note" : obj)}: ${a.linked.name}`;
+  if (a.linked) return `${t(obj === "task" ? "Task" : obj === "note" ? "Note" : obj)}: \u2068${a.linked.name}\u2069`;
   const diff = a.properties?.diff ?? {};
   if (diff.stage) return t("Stage moved to {s}", { s: tv(diff.stage.after) });
   if (diff.amount_micros) return t("Amount set to {x}", { x: money(diff.amount_micros.after) });

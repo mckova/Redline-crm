@@ -14,9 +14,18 @@ class Base(DeclarativeBase):
     pass
 
 
+def normalize_url(url: str) -> str:
+    """Hosted databases hand out postgres:// or postgresql://; SQLAlchemy needs the driver named."""
+    for old in ("postgres://", "postgresql://"):
+        if url.startswith(old):
+            return "postgresql+psycopg://" + url[len(old):]
+    return url
+
+
 def make_engine(url: str):
+    url = normalize_url(url)
     connect_args = {"check_same_thread": False} if url.startswith("sqlite") else {}
-    engine = create_engine(url, connect_args=connect_args)
+    engine = create_engine(url, connect_args=connect_args, pool_pre_ping=not url.startswith("sqlite"))
     if url.startswith("sqlite"):
 
         @event.listens_for(engine, "connect")

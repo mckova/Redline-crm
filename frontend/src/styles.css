@@ -642,6 +642,8 @@ tr.done td.name a, li.done a { text-decoration: line-through; }
   .search kbd { display: none; }
   .views { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .views .pend { margin-inline-start: 8px; }
+  .describe .row { flex-wrap: wrap; } .describe input { flex-basis: 100%; }
+  .rule-top { flex-wrap: wrap; }
   /* iOS zooms on focus below 16px */
   input, select, textarea { font-size: var(--t-lg); }
 }

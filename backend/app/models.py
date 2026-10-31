@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, BigInteger, Boolean, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -70,7 +70,7 @@ class Company(AuditMixin, Base):
     domain: Mapped[str | None] = mapped_column(String(200), nullable=True)
     industry: Mapped[str | None] = mapped_column(String(100), nullable=True)
     employees: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    annual_revenue_micros: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    annual_revenue_micros: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     city: Mapped[str | None] = mapped_column(String(100), nullable=True)
     owner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
@@ -109,7 +109,7 @@ class Lead(AuditMixin, Base):
     company_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     source: Mapped[str] = mapped_column(String(30), default="website")
     status: Mapped[str] = mapped_column(String(30), default="new")
-    budget_micros: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    budget_micros: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     score: Mapped[int] = mapped_column(Integer, default=0)
     score_reasons: Mapped[list] = mapped_column(JSON, default=list)
@@ -126,7 +126,7 @@ class Lead(AuditMixin, Base):
 class Deal(AuditMixin, Base):
     __tablename__ = "deals"
     name: Mapped[str] = mapped_column(String(200))
-    amount_micros: Mapped[int] = mapped_column(Integer, default=0)
+    amount_micros: Mapped[int] = mapped_column(BigInteger, default=0)
     currency: Mapped[str] = mapped_column(String(3), default="ILS")
     stage: Mapped[str] = mapped_column(String(20), default="NEW", index=True)
     position: Mapped[float] = mapped_column(Float, default=0.0)

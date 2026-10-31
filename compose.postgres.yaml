@@ -1,0 +1,27 @@
+# Redline on PostgreSQL instead of the bundled SQLite file:
+#   docker compose -f compose.postgres.yaml up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: redline
+      POSTGRES_PASSWORD: redline
+      POSTGRES_DB: redline
+    volumes: ["pg-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U redline -d redline"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  redline:
+    build: .
+    ports: ["8000:8000"]
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      REDLINE_DATABASE_URL: postgresql://redline:redline@db:5432/redline
+      REDLINE_SECRET: change-me-in-production-please
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      REDLINE_AI: ${REDLINE_AI:-auto}   # auto: Claude when a key is set, offline demo otherwise
+volumes:
+  pg-data:

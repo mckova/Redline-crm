@@ -122,6 +122,18 @@ cd backend && pip install -r requirements.txt
 uvicorn app.main:app --reload            # serves API + built frontend on :8000
 ```
 
+**On PostgreSQL**
+
+SQLite is the default so the demo starts with nothing installed. For a real database, point the app at Postgres; the tables are created on first start and the demo workspace is seeded once.
+
+```bash
+docker compose -f compose.postgres.yaml up --build      # app + Postgres 16
+# or, with your own server:
+REDLINE_DATABASE_URL=postgresql://user:pass@host:5432/redline uvicorn app.main:app
+```
+
+`postgres://` and `postgresql://` URLs are accepted as hosted databases hand them out. The driver (`psycopg`) is in `requirements.txt`.
+
 For frontend hot reload, run `npm run dev` in `frontend/`. It proxies `/api` to `:8000`.
 
 On first start the app seeds a demo workspace: 12 companies, about 25 people, 30 deals, 20 leads, tasks, notes and automation rules. Set `REDLINE_SEED=off` to start empty.
@@ -132,7 +144,7 @@ On first start the app seeds a demo workspace: 12 companies, about 25 people, 30
 | `REDLINE_AI` | `auto` | `auto` (Claude with a key, demo without), `on`, `demo` or `off` |
 | `REDLINE_AI_MODEL` | `claude-opus-5-5` | Claude model for all assistant features |
 | `REDLINE_AI_AUTO_INSIGHTS` | `on` | Background analysis of new leads and stage changes |
-| `REDLINE_DATABASE_URL` | `sqlite:///./redline.db` | Any SQLAlchemy URL (e.g. Postgres) |
+| `REDLINE_DATABASE_URL` | `sqlite:///./redline.db` | SQLite or PostgreSQL (`postgresql://user:pass@host/db`) |
 | `REDLINE_SECRET` | dev value | JWT signing key: **set in production** |
 | `REDLINE_WEBHOOKS` | `off` | `on` to actually POST webhook actions (otherwise dry-run, logged) |
 | `REDLINE_SEED` | `on` | Seed demo data on an empty DB |
@@ -143,7 +155,17 @@ On first start the app seeds a demo workspace: 12 companies, about 25 people, 30
 cd backend && python -m pytest -q
 ```
 
-30 tests cover CRUD and soft delete, timeline diffs, linked-record fan-out, kanban reordering, scoring, lead conversion, automations (happy path, loop protection, failing-action isolation, validation), dashboard math, search and seeding; the AI layer with a scripted model client (tool loop, approvals and rejections, structured outputs, refusals, background steps, strict tool schemas); and demo mode end to end (the assistant panel in English and Hebrew, record read, memo per language, rule drafting, background reads). CI runs the tests and the frontend build on every push.
+```bash
+REDLINE_TEST_DATABASE_URL=postgresql://postgres@localhost/redline_test python -m pytest -q   # same suite on PostgreSQL
+```
+
+31 tests cover CRUD and soft delete, timeline diffs, linked-record fan-out, kanban reordering, scoring, lead conversion, automations (happy path, loop protection, failing-action isolation, validation), dashboard math, search and seeding; the AI layer with a scripted model client (tool loop, approvals and rejections, structured outputs, refusals, background steps, strict tool schemas); and demo mode end to end (the assistant panel in English and Hebrew, record read, memo per language, rule drafting, background reads). CI runs the tests and the frontend build on every push.
+
+**Browser walkthrough.** `e2e/walkthrough.js` drives the whole product in a real browser, 42 steps from the product page and sign-in through deals, the call-notes approval flow, the board, leads and conversion, tasks, rules, search, themes, Hebrew, mobile widths and sign-out, and checks the results through the API. It needs the server running on seeded data (the offline demo assistant is enough) and the `playwright` package:
+
+```bash
+BASE=http://localhost:8000 node e2e/walkthrough.js /tmp/redline-e2e/
+```
 
 ## API sketch
 

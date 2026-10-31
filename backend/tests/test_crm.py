@@ -1,4 +1,5 @@
 """End-to-end API tests for the core CRM flows."""
+import os
 
 
 def mk(client, plural, **values):
@@ -172,7 +173,8 @@ def test_seed_runs_clean(tmp_path):
     from app.models import AutomationRun, Deal
     from app.seed import seed
 
-    engine = make_engine(f"sqlite:///{tmp_path}/s.db")
+    engine = make_engine(os.environ.get("REDLINE_TEST_DATABASE_URL") or f"sqlite:///{tmp_path}/s.db")
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     with sessionmaker(bind=engine)() as db:
         seed(db)

@@ -39,9 +39,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     for (const t of ["company", "contact"] as RecordType[]) void loadOptions(t);
     void reloadPending();
     const h = () => void reloadPending();
+    const refs = () => { for (const t of ["company", "contact"] as RecordType[]) void loadOptions(t); };
+    window.addEventListener("redline:refs", refs);
+    window.addEventListener("redline:changed", refs);
     window.addEventListener("redline:changed", h);
     window.addEventListener("redline:proposed", h);
-    return () => { window.removeEventListener("redline:changed", h); window.removeEventListener("redline:proposed", h); };
+    return () => { window.removeEventListener("redline:changed", h); window.removeEventListener("redline:proposed", h); window.removeEventListener("redline:refs", refs); window.removeEventListener("redline:changed", refs); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 

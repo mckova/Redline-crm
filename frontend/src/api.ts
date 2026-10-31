@@ -26,6 +26,8 @@ export async function api<T = any>(path: string, opts: { method?: string; body?:
     try { const j = await res.json(); msg = typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail); } catch { /* empty */ }
     throw new ApiError(res.status, msg);
   }
+  // Names in selects and links come from a cache of companies and people; a write may have added to it.
+  if ((opts.method ?? (opts.body ? "POST" : "GET")) !== "GET" && /^\/(companies|contacts|leads)/.test(path)) window.dispatchEvent(new Event("redline:refs"));
   return res.status === 204 ? (undefined as T) : res.json();
 }
 

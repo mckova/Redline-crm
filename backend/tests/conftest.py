@@ -20,7 +20,10 @@ def client(tmp_path, monkeypatch):
     from app.models import User
     from app.auth import hash_password
 
-    engine = dbmod.make_engine(f"sqlite:///{tmp_path}/t.db")
+    # REDLINE_TEST_DATABASE_URL runs the whole suite on PostgreSQL; the default is a throwaway SQLite file.
+    url = os.environ.get("REDLINE_TEST_DATABASE_URL") or f"sqlite:///{tmp_path}/t.db"
+    engine = dbmod.make_engine(url)
+    dbmod.Base.metadata.drop_all(engine)
     Session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
     monkeypatch.setattr(dbmod, "engine", engine)
     monkeypatch.setattr(dbmod, "SessionLocal", Session)
