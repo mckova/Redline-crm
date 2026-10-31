@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Plus } from "@phosphor-icons/react";
 import { api, compact, fmtDate, money } from "../api";
 import RecordForm from "../components/RecordForm";
@@ -53,10 +53,11 @@ export default function Pipeline() {
     <div className="page full">
       <div className="page-head">
         <div>
-          <h1>{t("Pipeline")}</h1>
+          <h1>{t("Deals")}</h1>
           {cols && <p className="sub">{t("₪{x} open across {n} deals. Drag a card to move its stage.", { x: compact(open), n: cols.filter((c) => c.stage !== "WON" && c.stage !== "LOST").reduce((s, c) => s + c.deals.length, 0) })}</p>}
         </div>
         <div className="row">
+          <div className="seg" role="group" aria-label={t("Layout")}><Link to="/deals">{t("Table")}</Link><Link className="on" to="/pipeline" aria-current="page">{t("Board")}</Link></div>
           <select aria-label={t("Owner")} value={owner} onChange={(e) => setOwner(e.target.value)}>
             <option value="">{t("Everyone's deals")}</option>
             {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}

@@ -52,6 +52,8 @@ def test_task_fans_out_to_linked_records(client):
     assert [t["title"] for t in detail["related"]["tasks"]] == ["Call"]
     listed = client.get(f"/api/tasks?target_type=deal&target_id={deal['id']}").json()
     assert listed["total"] == 1
+    row = next(r for r in client.get("/api/deal-rows").json() if r["id"] == deal["id"])
+    assert row["company_name"] == "Acme" and row["next_step"]["title"] == "Call" and row["last_touch"]
 
 
 def test_kanban_move_between_cards(client):

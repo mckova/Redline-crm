@@ -441,6 +441,15 @@ def copilot_resolve(db: Session, thread: AIThread, decisions: dict[str, bool], a
     results, display = [], []
     for p in thread.pending:
         approved = decisions.get(p["tool_use_id"], False)
+        dropped: list[str] = []
+        # Field-level decisions ("<tool_use_id>:<field>") let the user take part of an update.
+        if p["name"] == "update_record" and any(k.startswith(p["tool_use_id"] + ":") for k in decisions):
+            fields = p["input"].get("fields", [])
+            kept = [f for f in fields if decisions.get(f"{p['tool_use_id']}:{f['field']}", False)]
+            dropped = [f["field"] for f in fields if f not in kept]
+            approved = bool(kept)
+            if approved and dropped:
+                p = {**p, "input": {**p["input"], "fields": kept}, "summary": describe_call("update_record", {**p["input"], "fields": kept})}
         if not approved:
             results.append({"type": "tool_result", "tool_use_id": p["tool_use_id"], "content": "The user rejected this change. Do not retry it unless asked."})
             display.append({**p, "status": "skipped"})
@@ -448,7 +457,8 @@ def copilot_resolve(db: Session, thread: AIThread, decisions: dict[str, bool], a
         try:
             with db.begin_nested():
                 out = run_tool(db, p["name"], p["input"], actor)
-            results.append({"type": "tool_result", "tool_use_id": p["tool_use_id"], "content": json.dumps(out, default=str)})
+            note = f" The user declined these fields: {', '.join(dropped)}." if dropped else ""
+            results.append({"type": "tool_result", "tool_use_id": p["tool_use_id"], "content": json.dumps(out, default=str) + note})
             display.append({**p, "status": "success", "record": out.get("record")})
         except Exception as exc:  # report failure to the model, keep going
             results.append({"type": "tool_result", "tool_use_id": p["tool_use_id"], "content": f"Error: {exc}", "is_error": True})

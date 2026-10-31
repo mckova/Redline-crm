@@ -108,6 +108,39 @@ def _amount(text: str) -> int | None:
     return best
 
 
+_MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+_WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+
+
+def _close(text: str, today: datetime | None = None) -> str | None:
+    """'decide by Dec 12' or 'by 12 December' as an ISO date, rolled into next year if already past."""
+    low = text.lower()
+    m = re.search(r"\b(?:by|on|before|until)\s+(?:(\d{1,2})\s+([a-z]{3})[a-z]*|([a-z]{3})[a-z]*\s+(\d{1,2}))\b", low)
+    if not m:
+        return None
+    day, mon = (m.group(1), m.group(2)) if m.group(1) else (m.group(4), m.group(3))
+    if mon not in _MONTHS:
+        return None
+    today = today or datetime.now()
+    try:
+        d = datetime(today.year, _MONTHS.index(mon) + 1, int(day))
+    except ValueError:
+        return None
+    if d.date() < today.date():
+        d = d.replace(year=d.year + 1)
+    return d.date().isoformat()
+
+
+def _next_step(text: str, today: datetime | None = None) -> tuple[str, int] | None:
+    """'wants the proposal by Thursday' as ('Send the proposal', days until Thursday)."""
+    m = re.search(r"\b(proposal|quote|contract|pricing|deck|sow)\b[^.]*?\bby\s+(" + "|".join(_WEEKDAYS) + r")\b", text.lower())
+    if not m:
+        return None
+    today = today or datetime.now()
+    days = (_WEEKDAYS.index(m.group(2)) - today.weekday()) % 7 or 7
+    return f"Send the {m.group(1) if m.group(1) != 'sow' else 'SOW'}", days
+
+
 def _stage(text: str) -> str | None:
     low = text.lower()
     for key, words in STAGE_WORDS:
@@ -201,12 +234,17 @@ def _copilot(messages: list[dict]) -> SimpleNamespace:
         amt = _amount(said)
         if amt:
             fields.append({"field": "amount", "value": str(amt)})
+        close = _close(said)
+        if close:
+            fields.append({"field": "close_date", "value": close})
     if fields:
         proposals.append(_tool("update_record", record_type=rtype, record_id=rid, fields=fields))
     links = [{"type": rtype, "id": rid}] if rtype in ("deal", "lead", "company", "contact") else []
     if len(said) > 25:
         proposals.append(_tool("add_note", title="סיכום שיחה" if he else "Call summary", body=said, links=links))
-    proposals.append(_tool("create_task", title=(f"מעקב: {name}" if he else f"Follow up: {name}"), details=None, due_in_days=2, links=links))
+    step = None if he else _next_step(said)
+    title, due = step or ((f"מעקב: {name}" if he else f"Follow up: {name}"), 2)
+    proposals.append(_tool("create_task", title=title, details=None, due_in_days=due, links=links))
     intro = (f"הנה מה שהייתי מעדכן ב-[{name}](/{rtype}/{rid}), מחכה לאישור שלך:" if he
              else f"Here's what I'd update on [{name}](/{rtype}/{rid}). Approve what looks right:")
     return _msg(_text(intro), *proposals, stop="tool_use")

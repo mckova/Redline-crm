@@ -85,6 +85,22 @@ def _own_thread(db: Session, tid: int, user: User) -> ai.AIThread:
     return t
 
 
+@router.get("/pending")
+def pending(db: Session = Depends(get_db), user: User = Depends(current_user)):
+    """Every proposal still waiting for this user's approval, with the words that prompted it."""
+    out = []
+    for t in db.query(ai.AIThread).filter(ai.AIThread.user_id == user.id).order_by(ai.AIThread.updated_at.desc()).limit(50):
+        if not t.pending:
+            continue
+        said = next((d.get("text") for d in reversed(t.display or []) if d.get("role") == "user"), None)
+        out.append({
+            "thread_id": t.id, "target": {"type": t.target_type, "id": t.target_id} if t.target_type else None,
+            "said": said, "at": t.updated_at.isoformat() if t.updated_at else None,
+            "items": [{k: v for k, v in p.items() if not k.startswith("_")} for p in t.pending],
+        })
+    return out
+
+
 @router.get("/threads/{tid}")
 def get_thread(tid: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
     return _thread_out(_own_thread(db, tid, user))

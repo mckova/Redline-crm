@@ -98,4 +98,4 @@ The visual system, its reasons and its rules are in [DESIGN.md](../DESIGN.md).
 * **Product page** (`Landing.tsx`): the hero is a working copy of the
   approval flow on a sample deal, computed in the browser from the notes you
   type; approved changes land on the deal with a short wash. Below it, a
-  sample memo on the forest band, a plain spec list, and the real sign-in form.
+  sample memo on a glass card, a plain spec list, and the real sign-in form.

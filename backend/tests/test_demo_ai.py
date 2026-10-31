@@ -40,10 +40,31 @@ def test_demo_copilot_turns_notes_into_approved_changes(client, demo):
     assert names == ["update_record", "add_note", "create_task"]
     upd = out["pending"][0]["input"]["fields"]
     assert {"field": "stage", "value": "PROPOSAL"} in upd and {"field": "amount", "value": "75000"} in upd
+    waiting = client.get("/api/ai/pending").json()
+    assert len(waiting) == 1 and waiting[0]["target"] == {"type": "deal", "id": deal["id"]}
+    assert waiting[0]["said"].startswith("Call with Dana") and len(waiting[0]["items"]) == 3
     out = client.post(f"/api/ai/threads/{t['id']}/resolve", json={"decisions": {p["tool_use_id"]: True for p in out["pending"]}}).json()
     assert out["pending"] == [] and out["display"][-1]["text"].startswith("3 changes applied")
     d = client.get(f"/api/deals/{deal['id']}").json()
     assert d["stage"] == "PROPOSAL" and d["amount_micros"] == 75_000_000_000
+    assert client.get("/api/ai/pending").json() == []
+
+
+def test_demo_copilot_reads_close_date_and_next_step(client, demo):
+    deal = mk(client, "deals", name="Fleet pilot", amount_micros=180_000_000_000, stage="QUALIFIED")
+    t = client.post("/api/ai/threads", json={"target_type": "deal", "target_id": deal["id"]}).json()
+    out = client.post(f"/api/ai/threads/{t['id']}/messages", json={"text": "Call with Adi: budget approved at 240K. She wants the proposal by Thursday and will decide by Dec 12."}).json()
+    upd = out["pending"][0]["input"]["fields"]
+    assert {"field": "amount", "value": "240000"} in upd
+    assert any(f["field"] == "close_date" and f["value"].endswith("-12-12") for f in upd)
+    task = out["pending"][-1]["input"]
+    assert task["title"] == "Send the proposal" and 1 <= task["due_in_days"] <= 7
+    # take the amount and close date, leave the stage as it is
+    upd_id = out["pending"][0]["tool_use_id"]
+    decisions = {p["tool_use_id"]: True for p in out["pending"]} | {f"{upd_id}:amount": True, f"{upd_id}:close_date": True, f"{upd_id}:stage": False}
+    client.post(f"/api/ai/threads/{t['id']}/resolve", json={"decisions": decisions})
+    d = client.get(f"/api/deals/{deal['id']}").json()
+    assert d["close_date"][5:10] == "12-12" and d["amount_micros"] == 240_000_000_000 and d["stage"] == "QUALIFIED"
 
 
 def test_demo_copilot_answers_in_hebrew(client, demo):

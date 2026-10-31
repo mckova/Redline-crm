@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { Link } from "react-router-dom";
 import { X } from "@phosphor-icons/react";
 import { fmtDate, money, type RecordType } from "../api";
-import { STAGES, type Field } from "../fields";
+import type { Field } from "../fields";
 import { useStore } from "../store";
 import { t, tv } from "../i18n";
 
@@ -72,16 +72,9 @@ export function LoadError({ what, onRetry }: { what: string; onRetry: () => void
   );
 }
 
-const OPEN = STAGES.filter((s) => s !== "LOST");
-/** The stage meter: five ticks that fill as a deal advances, always with the stage name beside them. */
+/** The stage as a glass pill with a hairline. Won reads teal, lost reads quiet. */
 export function Stage({ stage }: { stage: string }) {
-  const at = OPEN.indexOf(stage);
-  return (
-    <span className={`stage ${stage}`}>
-      <span className="meter" aria-hidden="true">{OPEN.map((s, i) => <i key={s} className={stage !== "LOST" && i <= at ? "on" : ""} />)}</span>
-      {tv(stage)}
-    </span>
-  );
+  return <span className={`stage ${stage}`}>{tv(stage)}</span>;
 }
 
 export function Grade({ grade, score }: { grade: string; score: number }) {

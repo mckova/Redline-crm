@@ -1,28 +1,29 @@
 /*
-  Product page. Same tokens as the app. The motif repeats the app shell: a paper sheet lying on the forest rail.
+  Product page. Same tokens as the app: glass cards on the cool gray ground, one teal accent.
   Dials: energy 2, rhythm 2, motion 2. One authored moment: applied changes land on the sample deal.
 */
-.lp { background: var(--surface); color: var(--ink); min-block-size: 100dvh; overflow-x: clip; --gutter: clamp(20px, 5vw, 64px); }
-.lp-bar { position: sticky; inset-block-start: 0; z-index: var(--z-sticky); display: flex; align-items: center; justify-content: space-between; padding: 10px var(--gutter); background: color-mix(in srgb, var(--surface) 94%, transparent); border-block-end: 1px solid var(--line); }
-.lp-brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: 0.08em; }
-.lp-brand .mark { background: var(--rail); color: var(--rail-mark); }
-.lp-signin { font-weight: 500; font-size: var(--t-sm); padding: 6px 10px; border-radius: var(--r-control); text-decoration: none; border: 1px solid var(--line-strong); background: var(--raised); box-shadow: var(--edge), var(--e1); }
-@media (hover: hover) and (pointer: fine) { .lp-signin:hover { border-color: var(--ink-faint); } }
+.lp { color: var(--ink); min-block-size: 100dvh; overflow-x: clip; --gutter: clamp(20px, 5vw, 64px); }
+.lp-bar { position: sticky; inset-block-start: 0; z-index: var(--z-sticky); display: flex; align-items: center; justify-content: space-between; padding: 10px var(--gutter); background: rgb(255 255 255 / 0.45); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border-block-end: 1px solid var(--rim); }
+[data-theme="dark"] .lp-bar { background: rgb(20 22 26 / 0.6); }
+.lp-brand { display: inline-flex; align-items: center; gap: 12px; font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
+.lp-brand .logo { inline-size: 36px; block-size: 36px; border-radius: 11px; }
+.lp-signin { font-weight: 500; font-size: var(--t-sm); padding: 8px 16px; border-radius: 99px; text-decoration: none; border: 1px solid var(--rim); background: var(--chip); box-shadow: var(--e1); }
+@media (hover: hover) and (pointer: fine) { .lp-signin:hover { background: var(--raised-hover); } }
 
 /* hero: copy and the working surface, side by side */
 .lp-hero { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 80px); align-items: start; padding: clamp(40px, 6vw, 80px) var(--gutter) clamp(56px, 8vw, 112px); max-inline-size: 1360px; margin-inline: auto; }
 .lp-copy { padding-block-start: var(--s10); position: sticky; inset-block-start: 96px; }
-.lp-copy h1 { font-size: clamp(2.25rem, 4vw, 3.4rem); line-height: 1.04; letter-spacing: -0.03em; font-weight: 600; margin-block-end: var(--s5); }
+.lp-copy h1 { font-size: clamp(2.25rem, 4vw, 3.4rem); line-height: 1.04; letter-spacing: -0.04em; font-weight: 500; margin-block-end: var(--s5); }
 .lp-copy h1 span { display: block; }
 .lp-lede { font-size: var(--t-xl); line-height: 1.45; color: var(--ink-soft); max-inline-size: 34ch; margin-block-end: var(--s8); }
-.lp-cta { display: inline-flex; align-items: center; min-block-size: 44px; padding: 0 18px; border-radius: var(--r-control); background: var(--accent); color: var(--accent-ink); font-weight: 500; text-decoration: none; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--e1); transition: background-color var(--d-fast) ease, transform var(--d-press) var(--ease-out); }
+.lp-cta { display: inline-flex; align-items: center; min-block-size: 44px; padding: 0 22px; border-radius: 99px; background: var(--accent-grad); color: var(--accent-ink); font-weight: 500; text-decoration: none; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 8px 20px -8px rgb(10 90 85 / 0.5); transition: background-color var(--d-fast) ease, transform var(--d-press) var(--ease-out); }
 .lp-cta:active { transform: scale(0.97); }
-@media (hover: hover) and (pointer: fine) { .lp-cta:hover { background: var(--accent-hover); } }
+@media (hover: hover) and (pointer: fine) { .lp-cta:hover { filter: brightness(1.06); } }
 .lp-fine { margin-block-start: var(--s4); font-size: var(--t-sm); color: var(--ink-faint); max-inline-size: 38ch; }
 .lp-sample { font-size: var(--t-xs); color: var(--ink-faint); display: inline-flex; gap: 6px; align-items: center; }
-.lp-sample::before { content: ""; inline-size: 6px; block-size: 6px; border-radius: 1px; background: var(--warn); }
+.lp-sample::before { content: ""; inline-size: 6px; block-size: 6px; border-radius: 50%; background: var(--warn); }
 
-.lp-surface { background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-surface); box-shadow: var(--edge), var(--e3); padding: var(--s4) var(--s5) var(--s5); display: grid; gap: var(--s4); }
+.lp-surface { background: var(--card); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--rim); border-radius: var(--r-card); box-shadow: var(--e-card); padding: var(--s5) var(--s6) var(--s6); display: grid; gap: var(--s4); }
 .lp-surface-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); margin-block-end: calc(var(--s2) * -1); }
 .lp-deal { border-block: 1px solid var(--line); padding-block: var(--s3); }
 .lp-deal > b { font-size: var(--t-lg); }
@@ -34,17 +35,18 @@
 .lp-deal .flash { @starting-style { background-color: var(--accent-wash); } }
 .lp-notes { display: grid; gap: 5px; }
 .lp-notes > span { font-size: var(--t-xs); color: var(--ink-soft); font-weight: 500; }
-.lp-notes textarea { resize: vertical; background: var(--surface); }
+.lp-notes textarea { resize: vertical; background: rgb(255 255 255 / 0.75); }
+[data-theme="dark"] .lp-notes textarea { background: var(--raised); }
 .lp-surface .approval { box-shadow: none; }
 .lp-surface .approval .row { gap: var(--s3); }
 .lp-log { border-block-start: 1px solid var(--line); padding-block-start: var(--s2); }
 .lp-log .tl { transition: opacity var(--d-ui) var(--ease-out), transform var(--d-ui) var(--ease-out); @starting-style { opacity: 0; transform: translateY(-4px); } }
 
 /* the memo, laid on the rail like the app's sheet */
-.lp-memo { background: var(--rail); color: var(--rail-ink); padding: clamp(56px, 8vw, 104px) var(--gutter); display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
-.lp-side h2 { font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1.15; letter-spacing: -0.02em; font-weight: 600; max-inline-size: 16ch; margin-block-end: var(--s4); }
-.lp-side p { color: var(--rail-soft); max-inline-size: 36ch; font-size: var(--t-lg); }
-.lp-sheet { margin: 0; background: var(--surface); color: var(--ink); border-radius: var(--r-surface); padding: var(--s6) var(--s8) var(--s4); box-shadow: var(--e3); max-inline-size: 720px; }
+.lp-memo { padding: clamp(56px, 8vw, 104px) var(--gutter); display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+.lp-side h2 { font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1.15; letter-spacing: -0.02em; font-weight: 500; max-inline-size: 16ch; margin-block-end: var(--s4); }
+.lp-side p { color: var(--ink-soft); max-inline-size: 36ch; font-size: var(--t-lg); }
+.lp-sheet { margin: 0; background: var(--card); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid var(--rim); color: var(--ink); border-radius: var(--r-card); padding: var(--s6) var(--s8) var(--s4); box-shadow: var(--e-card); max-inline-size: 720px; }
 .lp-sheet figcaption { margin-block-end: var(--s3); }
 .lp-sheet .memo-lede { margin-block-end: var(--s4); }
 .lp-sheet .focus { margin-block-end: 0; }
@@ -52,15 +54,15 @@
 
 /* a plain spec list, not a card grid */
 .lp-more { padding: clamp(48px, 7vw, 88px) var(--gutter); max-inline-size: 1100px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--s8); }
-.lp-more h2 { font-size: var(--t-xl); font-weight: 600; }
+.lp-more h2 { font-size: var(--t-xl); font-weight: 500; }
 .lp-more dl { margin: 0; border-block-start: 1px solid var(--line); }
 .lp-more dl > div { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); gap: var(--s4); padding-block: var(--s4); border-block-end: 1px solid var(--line); }
-.lp-more dt { font-weight: 600; }
+.lp-more dt { font-weight: 500; }
 .lp-more dd { margin: 0; color: var(--ink-soft); max-inline-size: 56ch; }
 
 /* the close is the real input */
 .lp-end { padding: clamp(48px, 7vw, 96px) var(--gutter); max-inline-size: 1100px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--s8); border-block-start: 1px solid var(--line); scroll-margin-block-start: 56px; }
-.lp-end h2 { font-size: var(--t-xl); font-weight: 600; margin-block-end: var(--s2); }
+.lp-end h2 { font-size: var(--t-xl); font-weight: 500; margin-block-end: var(--s2); }
 .lp-end p { color: var(--ink-soft); max-inline-size: 32ch; }
 .lp-end .login-card { inline-size: min(380px, 100%); }
 .lp-foot { display: flex; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; padding: var(--s5) var(--gutter); border-block-start: 1px solid var(--line); font-size: var(--t-sm); color: var(--ink-faint); }
@@ -78,3 +80,8 @@
   .lp-deal dl > div:first-child { grid-column: 1 / -1; }
   .lp-surface { padding-inline: var(--s4); }
 }
+
+/* inside the teal approval card the action is a light pill, as on the deals screen */
+.approval button.primary { background: #f2fbfa; color: #0b5752; box-shadow: inset 0 1px 0 #fff, 0 8px 18px -8px rgb(0 0 0 / 0.4); }
+.approval .faint, .approval .small { color: rgb(242 251 250 / 0.7); }
+.lp-surface .approval { padding: 18px; }

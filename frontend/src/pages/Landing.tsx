@@ -52,7 +52,7 @@ export default function Landing() {
   return (
     <div className="lp">
       <header className="lp-bar">
-        <span className="lp-brand"><span className="mark" aria-hidden="true">R</span>Redline</span>
+        <span className="lp-brand"><span className="logo" aria-hidden="true"><i /></span>Redline</span>
         <nav className="row" aria-label={t("Page")}>
           <button className="ghost small" lang={lang === "he" ? "en" : "he"} onClick={() => setLang(lang === "he" ? "en" : "he")}>{lang === "he" ? "English" : "עברית"}</button>
           <a className="lp-signin" href="#signin">{t("Sign in")}</a>
@@ -89,7 +89,7 @@ export default function Landing() {
         <section className="lp-more" aria-labelledby="lp-more-title">
           <h2 id="lp-more-title">{t("Also in the workspace")}</h2>
           <dl>
-            <div><dt>{t("A pipeline you drag")}</dt><dd>{t("Six stages, each move is one write, and the stage meter fills as a deal advances.")}</dd></div>
+            <div><dt>{t("A pipeline you drag")}</dt><dd>{t("The same deals as a table with saved views, or as a board you drag across six stages.")}</dd></div>
             <div><dt>{t("Lead scores with reasons")}</dt><dd>{t("Every point names its cause: a business email, a decision-maker title, a stated budget.")}</dd></div>
             <div><dt>{t("Rules in plain language")}</dt><dd>{t("Describe a rule in English or Hebrew; the assistant drafts it and the engine checks it before you save.")}</dd></div>
             <div><dt>{t("A timeline with sources")}</dt><dd>{t("Every change shows who made it, by hand, by a rule or by the assistant, with the field before and after.")}</dd></div>
@@ -155,12 +155,14 @@ function Surface() {
       {proposals.length === 0 ? <p className="faint small" role="status">{t("Nothing to propose yet. Mention an amount, a date or a next step.")}</p> : (
       <div className="approval">
         <div className="approval-head" role="status">{tn(proposals.length, "Waiting for your approval: 1 change", "Waiting for your approval: {n} changes")}</div>
-        {proposals.map((p) => (
-          <label key={p.id} className="approval-item">
-            <input type="checkbox" checked={!off[p.id]} onChange={() => setOff({ ...off, [p.id]: !off[p.id] })} />
-            <span>{p.label}</span>
-          </label>
-        ))}
+        <div className="approval-list">
+          {proposals.map((p) => (
+            <label key={p.id} className="approval-item">
+              <input type="checkbox" checked={!off[p.id]} onChange={() => setOff({ ...off, [p.id]: !off[p.id] })} />
+              <span>{p.label}</span>
+            </label>
+          ))}
+        </div>
         <div className="row">
           <button className="primary" disabled={!chosen.length} onClick={apply}>{t("Apply {n} selected", { n: chosen.length })}</button>
           <span className="faint small">{t("Unchecked items are discarded.")}</span>

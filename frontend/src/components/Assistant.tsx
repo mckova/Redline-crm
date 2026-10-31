@@ -75,6 +75,7 @@ export default function Assistant({ target, onClose, onChanged }: { target?: { t
       const th = await ensureThread();
       setThread({ ...th, display: [...th.display, { role: "user", text: msg }] });
       setThread(await api<Thread>(`/ai/threads/${th.id}/messages`, { body: { text: msg } }));
+      window.dispatchEvent(new Event("redline:proposed"));
     } catch (e: any) { setError(e.message); setText(msg); } finally { setBusy(false); }
   }
 
@@ -141,15 +142,17 @@ export default function Assistant({ target, onClose, onChanged }: { target?: { t
           {thread && thread.pending.length > 0 && (
             <div className="approval" role="group" aria-labelledby="approval-title">
               <div className="approval-head" id="approval-title">{tn(thread.pending.length, "Waiting for your approval: 1 change", "Waiting for your approval: {n} changes")}</div>
-              {thread.pending.map((p) => (
-                <label key={p.tool_use_id} className="approval-item">
-                  <input type="checkbox" checked={!!decisions[p.tool_use_id]} onChange={(e) => setDecisions({ ...decisions, [p.tool_use_id]: e.target.checked })} />
-                  <span>{p.summary}</span>
-                </label>
-              ))}
-              <div className="row">
-                <button className="primary" disabled={busy || chosen === 0} onClick={() => resolve()}>{t("Apply {n} selected", { n: chosen })}</button>
-                <button className="ghost" disabled={busy} onClick={() => resolve({})}>{t("Discard all")}</button>
+              <div className="approval-list">
+                {thread.pending.map((p) => (
+                  <label key={p.tool_use_id} className="approval-item">
+                    <input type="checkbox" checked={!!decisions[p.tool_use_id]} onChange={(e) => setDecisions({ ...decisions, [p.tool_use_id]: e.target.checked })} />
+                    <span>{p.summary}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="row acts">
+                <button className="apply" disabled={busy || chosen === 0} onClick={() => resolve()}>{t("Apply {n} selected", { n: chosen })}</button>
+                <button className="disc" disabled={busy} onClick={() => resolve({})}>{t("Discard all")}</button>
               </div>
             </div>
           )}

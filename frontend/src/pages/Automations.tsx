@@ -70,7 +70,7 @@ export default function Automations() {
     <div className="page">
       <div className="page-head">
         <div>
-          <h1>{t("Automations")}</h1>
+          <h1>{t("Rules")}</h1>
           <p className="sub">{t("Each rule waits for an event on a record, checks its conditions, then runs its steps in order.")}</p>
         </div>
         <button onClick={() => setEditing({ name: "", trigger_event: "deal.updated", conditions: [], actions: [{ type: "create_task", params: { title: "Follow up on {{record.name}}", due_in_days: 2 } }] })}><Plus aria-hidden="true" />{t("New rule")}</button>

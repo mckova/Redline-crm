@@ -2,11 +2,12 @@
 so new object types get REST endpoints for free); special flows get explicit endpoints."""
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Literal
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from . import automations as automation_engine
@@ -28,6 +29,7 @@ from .models import (
     Lead,
     Note,
     Task,
+    TimelineActivity,
     User,
 )
 from .scoring import grade, rescore
@@ -164,6 +166,42 @@ def pipeline(owner_id: int | None = None, db: Session = Depends(get_db), _: User
             }
         )
     return columns
+
+
+@router.get("/deal-rows")
+def deal_rows(db: Session = Depends(get_db), _: User = Depends(current_user)):
+    """Deals as the table shows them: company and contact names, the next open task and the last activity."""
+    deals = db.query(Deal).filter(Deal.deleted_at.is_(None)).order_by(Deal.amount_micros.desc()).all()
+    ids = [d.id for d in deals]
+    names = {}
+    for model, rtype in ((Company, "company"), (Contact, "contact")):
+        wanted = {getattr(d, f"{rtype}_id") for d in deals} - {None}
+        names[rtype] = {r.id: r.display_name for r in db.query(model).filter(model.id.in_(wanted))} if wanted else {}
+    links = (db.query(ActivityTarget.target_id, Task)
+             .join(Task, Task.id == ActivityTarget.item_id)
+             .filter(ActivityTarget.item_kind == "task", ActivityTarget.target_type == "deal", ActivityTarget.target_id.in_(ids),
+                     Task.deleted_at.is_(None), Task.status != "DONE")
+             .all()) if ids else []
+    nxt: dict[int, Task] = {}
+    for deal_id, task in links:
+        cur = nxt.get(deal_id)
+        if cur is None or (task.due_at or datetime.max) < (cur.due_at or datetime.max):
+            nxt[deal_id] = task
+    touch = dict(db.query(TimelineActivity.record_id, func.max(TimelineActivity.happens_at))
+                 .filter(TimelineActivity.record_type == "deal", TimelineActivity.record_id.in_(ids))
+                 .group_by(TimelineActivity.record_id).all()) if ids else {}
+    rows = []
+    for d in deals:
+        row = serialize(d, "deal")
+        t = nxt.get(d.id)
+        row.update({
+            "company_name": names["company"].get(d.company_id),
+            "contact_name": names["contact"].get(d.contact_id),
+            "next_step": {"id": t.id, "title": t.title, "due_at": t.due_at.isoformat() if t.due_at else None} if t else None,
+            "last_touch": touch[d.id].isoformat() if d.id in touch else None,
+        })
+        rows.append(row)
+    return rows
 
 
 class MoveIn(BaseModel):

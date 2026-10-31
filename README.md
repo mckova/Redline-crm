@@ -10,17 +10,25 @@ event-driven core: every change lands on a timeline with its source, can
 trigger rules, and feeds lead scores and deal health. English and Hebrew (RTL).
 
 
-![Product page](docs/screenshots/01-product-page.png)
+![Deals, with the assistant's changes waiting for approval](docs/screenshots/02-deals.png)
 
 ## The assistant (Claude Opus 5.5)
 
-![Today](docs/screenshots/02-today.png)
+On the deals table, what the assistant took from a call sits in the cells
+themselves: the old value struck through, the new one underlined in teal. The
+column on the right quotes the notes and lists each change with its own tick,
+so you can take the amount and the close date and leave the stage.
 
-| The assistant proposes, you approve | Applied, with the source on the timeline |
+| Untick what you don't want | Applied, with the source on the timeline |
 |---|---|
 | ![Approval](docs/screenshots/03-approval.png) | ![Applied](docs/screenshots/04-applied.png) |
 
+| Today: the morning memo | Product page |
+|---|---|
+| ![Today](docs/screenshots/05-today.png) | ![Product page](docs/screenshots/01-product-page.png) |
+
 - **Morning memo**: the assistant reads a snapshot of the pipeline (deal health, the largest open deals, overdue tasks, hot leads, forecast) and writes a one-line lede and three to five numbered places to start, each linked to its record. Memos are kept per language.
+- **Changes from a call, in the table**: paste call notes on a deal ("Log a call") and the assistant proposes the stage, amount, close date, a note and the next task. Proposals show inline in the deals table and wait in an approval card; each field can be accepted on its own.
 - **Assistant panel**: a chat agent with tools over the whole CRM. It searches, lists, reads records with their timelines and checks the pipeline on its own. Every write (create or update records, tasks, notes, lead conversion) pauses as a proposal you approve or discard. Opened from a record, it starts with that record's context.
 - **Proactive reads**: when a lead is created or a deal changes stage, a background job prepares the assistant's read, so it is waiting when a rep opens the record.
 - **The assistant's read on every record**: a summary, momentum, risks grounded in the timeline, next steps that become tasks in one click, and a follow-up email draft, in English or Hebrew.
@@ -35,19 +43,19 @@ trigger rules, and feeds lead scores and deal health. English and Hebrew (RTL).
 
 | Pipeline (drag and drop) | Lead score with reasons |
 |---|---|
-| ![Pipeline](docs/screenshots/06-pipeline.png) | ![Lead](docs/screenshots/07-lead.png) |
+| ![Pipeline](docs/screenshots/07-pipeline.png) | ![Lead](docs/screenshots/08-lead.png) |
 | **Deal with the assistant's read and timeline** | **Rules, written out in plain language** |
-| ![Deal](docs/screenshots/05-deal.png) | ![Rules](docs/screenshots/08-rules.png) |
+| ![Deal](docs/screenshots/06-deal.png) | ![Rules](docs/screenshots/09-rules.png) |
 
 - **Companies, people, leads, deals, tasks, notes**: full CRUD, soft delete, sort and filter, plus global search (Ctrl K or ⌘ K).
-- **Kanban pipeline**: drag and drop between stages and within a column. Fractional positions make every move one write. A five-tick stage meter fills as a deal advances.
+- **Deals as a table or a board**: saved views (open, mine, closing this month, gone quiet, won) with the next step and the last touch on every row, late dates in amber, and totals for the view. The board is drag and drop between stages and within a column; fractional positions make every move one write.
 - **Timeline on every record**: who changed what, with a field-level diff. Task and note events also appear on every record they're linked to.
 - **Lead conversion**: one click turns a lead into a company, a contact and a deal, reusing an existing company and moving the lead's notes and tasks.
 - **Lead scoring (0 to 100, grades A to D)**: every point comes with a reason, recomputed on every edit.
 - **Deal health**: flags stale deals, a passed close date, a missing contact, no next step, or a deal stuck in one stage, each with a concrete next action.
 - **No-code rules**: *when* a deal is updated, *if* the stage changes to Proposal, *then* create a task, add a note, update a field, call a webhook or run an assistant step. Each rule is shown as a plain sentence, with a run log, loop protection and per-action error isolation.
 - **Today**: the memo, deals that need attention, open pipeline, weighted forecast, win rate, sales cycle, value by stage, lead-source conversion and 14 days of timeline activity.
-- **Hebrew and English**: a full RTL interface from one stylesheet built on logical properties. Switch from the sidebar or the product page.
+- **Hebrew and English**: a full RTL interface from one stylesheet built on logical properties. Switch from the account menu or the product page.
 - **Light and dark themes**, or follow the system setting.
 - **Product page**: a working copy of the approval flow on a sample deal that runs in the browser, a sample memo, and the real sign-in form.
 - **Accessible by default**: focus-trapped dialogs, alert dialogs for destructive actions, keyboard-reachable rows and sort controls, labelled icon buttons, live regions for the assistant, skeleton loading and a distinct state for a failed load. Colour pairs meet WCAG AA in both themes.
@@ -55,7 +63,7 @@ trigger rules, and feeds lead scores and deal health. English and Hebrew (RTL).
 
 | Hebrew, right to left | Dark theme | Mobile |
 |---|---|---|
-| ![Hebrew](docs/screenshots/09-hebrew.png) | ![Dark](docs/screenshots/10-dark.png) | <img src="docs/screenshots/11-mobile.png" width="220" alt="Today on a phone"> |
+| ![Hebrew](docs/screenshots/10-hebrew.png) | ![Dark](docs/screenshots/11-dark.png) | <img src="docs/screenshots/12-mobile.png" width="220" alt="Deals on a phone"> |
 
 ## Architecture
 
