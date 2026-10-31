@@ -160,10 +160,11 @@ def jobs(db: Session = Depends(get_db), _: User = Depends(current_user)):
 
 
 @router.get("/briefing")
-def latest_briefing(db: Session = Depends(get_db), user: User = Depends(current_user)):
-    i = (db.query(ai.AIInsight).filter(ai.AIInsight.record_type == "briefing", ai.AIInsight.record_id == user.id)
-         .order_by(ai.AIInsight.id.desc()).first())
-    return _insight_out(i)
+def latest_briefing(lang: str = "en", db: Session = Depends(get_db), user: User = Depends(current_user)):
+    """The newest memo written in the reader's language; a memo in the other language is not shown."""
+    recent = (db.query(ai.AIInsight).filter(ai.AIInsight.record_type == "briefing", ai.AIInsight.record_id == user.id)
+              .order_by(ai.AIInsight.id.desc()).limit(20).all())
+    return _insight_out(next((i for i in recent if (i.payload or {}).get("lang", "en") == lang), None))
 
 
 @router.post("/briefing")

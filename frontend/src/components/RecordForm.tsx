@@ -62,19 +62,19 @@ export default function RecordForm({ type, record, defaults, targets, onClose, o
   }
 
   return (
-    <Modal title={`${t(record ? "Edit" : "New")} · ${t(LABELS[type][0])}`} onClose={onClose}>
+    <Modal title={record ? t("Edit {x}", { x: record.display_name ?? t(LABELS[type][0]) }) : t("New {x}", { x: t(LABELS[type][0]).toLowerCase() })} onClose={onClose}>
       <form onSubmit={submit} className="form">
         {fields.map((f) => (
           <label key={f.key} className={f.kind === "textarea" ? "span2" : ""}>
             <span>{t(f.label)}{f.required && " *"}</span>
             {f.kind === "select" ? (
               <select value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}>
-                <option value="">—</option>
+                <option value="">{t("Not set")}</option>
                 {f.options!.map((o) => <option key={o} value={o}>{tv(o)}</option>)}
               </select>
             ) : f.kind === "ref" ? (
               <select value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}>
-                <option value="">—</option>
+                <option value="">{t("Not set")}</option>
                 {options(f.ref!).map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
               </select>
             ) : f.kind === "textarea" ? (
@@ -93,7 +93,7 @@ export default function RecordForm({ type, record, defaults, targets, onClose, o
         {error && <div className="error span2" role="alert">{error}</div>}
         <div className="actions span2">
           <button type="button" className="ghost" onClick={onClose}>{t("Cancel")}</button>
-          <button className="primary" disabled={busy}>{busy ? t("Saving…") : t("Save")}</button>
+          <button className="primary" disabled={busy}>{busy ? t("Saving…") : record ? t("Save changes") : t("Create {x}", { x: t(LABELS[type][0]).toLowerCase() })}</button>
         </div>
       </form>
     </Modal>

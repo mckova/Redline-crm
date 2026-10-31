@@ -2,11 +2,11 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { api, PLURAL, type RecordType } from "./api";
 
 type Option = { id: number; name: string };
-export type CopilotTarget = { type: RecordType; id: number; name: string } | null;
+export type AssistantTarget = { type: RecordType; id: number; name: string } | null;
 type Store = {
-  copilot: { open: boolean; target: CopilotTarget };
-  openCopilot: (target?: CopilotTarget) => void;
-  closeCopilot: () => void;
+  assistant: { open: boolean; target: AssistantTarget };
+  openAssistant: (target?: AssistantTarget) => void;
+  closeAssistant: () => void;
   user: { id: number; name: string; role: string } | null;
   setUser: (u: Store["user"]) => void;
   users: Option[];
@@ -21,9 +21,9 @@ export const useStore = () => useContext(Ctx);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Store["user"]>(null);
   const [users, setUsers] = useState<Option[]>([]);
-  const [copilot, setCopilot] = useState<Store["copilot"]>({ open: false, target: null });
-  const openCopilot = (target: CopilotTarget = null) => setCopilot({ open: true, target });
-  const closeCopilot = () => setCopilot((c) => ({ ...c, open: false }));
+  const [assistant, setAssistant] = useState<Store["assistant"]>({ open: false, target: null });
+  const openAssistant = (target: AssistantTarget = null) => setAssistant({ open: true, target });
+  const closeAssistant = () => setAssistant((a) => ({ ...a, open: false }));
   const [cache, setCache] = useState<Partial<Record<RecordType, Option[]>>>({});
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const options = (t: RecordType | "user") => (t === "user" ? users : cache[t] ?? []);
   const refName = (t: RecordType | "user", id: number | null | undefined) =>
-    id == null ? "—" : options(t).find((o) => o.id === id)?.name ?? `#${id}`;
+    id == null ? "-" : options(t).find((o) => o.id === id)?.name ?? `#${id}`;
 
-  return <Ctx.Provider value={{ copilot, openCopilot, closeCopilot, user, setUser, users, options, loadOptions, refName }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ assistant, openAssistant, closeAssistant, user, setUser, users, options, loadOptions, refName }}>{children}</Ctx.Provider>;
 }

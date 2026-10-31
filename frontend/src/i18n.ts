@@ -14,71 +14,108 @@ export function setLang(l: Lang) {
 
 const HE: Record<string, string> = {
   // shell
-  Dashboard: "דשבורד", Pipeline: "צנרת מכירות", Deals: "עסקאות", Leads: "לידים", Companies: "חברות", People: "אנשי קשר",
-  Tasks: "משימות", Automations: "אוטומציות", Notes: "הערות", Contacts: "אנשי קשר", "Sign out": "התנתקות",
-  "Search everything…  ⌘K": "חיפוש בכל המערכת…  ⌘K", "✦ Copilot": "✦ קופיילוט", "Loading…": "טוען…",
-  admin: "מנהל/ת", sales: "מכירות",
-  // login
-  "Relationship CRM · demo workspace": "CRM לניהול קשרי לקוחות · סביבת דמו", Email: "אימייל", Password: "סיסמה", "Sign in": "כניסה",
-  "Demo users: admin@ / dor@ / noa@kesher.dev · password demo1234": "משתמשי דמו: admin@ / dor@ / noa@kesher.dev · סיסמה demo1234",
-  // dashboard
-  "Open pipeline": "צנרת פתוחה", "{n} open deals": "{n} עסקאות פתוחות", "Weighted forecast": "תחזית משוקללת",
-  "amount × stage probability": "סכום × הסתברות השלב", Won: "נסגרו", "win rate {n}%": "אחוז זכייה {n}%",
-  "Avg. sales cycle": "מחזור מכירה ממוצע", "created → won": "מפתיחה לסגירה", "Overdue tasks": "משימות באיחור",
-  "{n} leads in funnel": "{n} לידים במשפך", "Pipeline by stage": "צנרת לפי שלב", "Deals needing attention": "עסקאות שדורשות טיפול",
-  "All open deals look healthy 🎉": "כל העסקאות הפתוחות במצב טוב 🎉", "Activity · last 14 days": "פעילות · 14 הימים האחרונים",
-  "Lead sources": "מקורות לידים", Source: "מקור", Converted: "הומרו", Rate: "שיעור", "{n}d": "{n} ימים",
-  // briefing
-  "✦ Today's briefing": "✦ התדריך של היום", "Generate briefing": "הפקת תדריך", Refresh: "רענון", "Thinking…": "חושב…",
-  "Claude reads the whole pipeline (deal health, overdue tasks, hot leads, forecast) and tells you where to start today.":
-    "Claude קורא את כל הצנרת (בריאות עסקאות, משימות באיחור, לידים חמים ותחזית) ואומר לך מאיפה להתחיל היום.",
-  "Watch out": "שימו לב",
-  // AI status
-  "Demo AI": "AI במצב דמו",
-  "Demo mode: no API key is set, so an offline stand-in answers from the CRM data. Set ANTHROPIC_API_KEY to use Claude Opus 5.5.":
-    "מצב דמו: לא הוגדר מפתח API, ולכן תחליף לא מקוון עונה מתוך נתוני ה-CRM. הגדירו ANTHROPIC_API_KEY כדי לעבוד עם Claude Opus 5.5.",
-  "AI is not configured.": "ה-AI לא מוגדר.",
+  Main: "ניווט ראשי", Today: "היום", Pipeline: "צנרת מכירות", Tasks: "משימות", Records: "רשומות", Deals: "עסקאות", Leads: "לידים",
+  Companies: "חברות", People: "אנשי קשר", Contacts: "אנשי קשר", Notes: "הערות", Workspace: "סביבת עבודה", Automations: "אוטומציות",
+  "Sample workspace": "סביבת דוגמה", Theme: "ערכת צבעים", "Light theme": "בהירה", "Dark theme": "כהה", "Match the system": "לפי המערכת",
+  "Sign out": "התנתקות", Assistant: "העוזר", admin: "מנהל/ת", sales: "מכירות", "Loading…": "טוען…",
+  "Search records": "חיפוש רשומות", "Search deals, people, companies": "חיפוש עסקאות, אנשים, חברות", "Search results": "תוצאות חיפוש",
+  "Nothing matches “{q}”.": "אין תוצאות עבור “{q}”.",
+  // states
+  "Couldn't load {x}. The server didn't answer.": "לא הצלחנו לטעון את {x}. השרת לא ענה.", "Try again": "לנסות שוב",
+  "Not set": "לא הוגדר", Close: "סגירה", "This can't be undone from the app.": "אי אפשר לבטל את זה מתוך המערכת.", "Keep it": "להשאיר",
+  "Grade {g}, score {n} of 100": "דרגה {g}, ציון {n} מתוך 100",
+  "Drafted by the offline demo assistant": "נכתב על ידי עוזר הדמו הלא מקוון", "Drafted by {m}": "נכתב על ידי {m}",
+  // sign in
+  Email: "אימייל", Password: "סיסמה", "Sign in": "כניסה", "Signing in…": "נכנסים…", "Open the sample workspace": "לפתוח את סביבת הדוגמה",
+  "Other sample users: dor@kesher.dev and noa@kesher.dev, same password.": "משתמשי דוגמה נוספים: dor@kesher.dev ו-noa@kesher.dev, אותה סיסמה.",
+  "That email and password don't match an account.": "האימייל והסיסמה לא תואמים לחשבון.", "Couldn't reach the server. Try again in a moment.": "אין חיבור לשרת. נסו שוב בעוד רגע.",
+  // today
+  "Where to start today": "מאיפה להתחיל היום", Rewrite: "לכתוב מחדש", "Reading the pipeline…": "קורא את הצנרת…", "today's memo": "המזכר של היום",
+  "The assistant couldn't write the memo: {e}": "העוזר לא הצליח לכתוב את המזכר: {e}",
+  "No memo yet today. The assistant reads deal health, overdue tasks, hot leads and the forecast, then ranks the records to work on first.":
+    "עדיין אין מזכר להיום. העוזר קורא את בריאות העסקאות, המשימות באיחור, הלידים החמים והתחזית, ומדרג את הרשומות שכדאי להתחיל בהן.",
+  "Write today's memo": "לכתוב את המזכר של היום", Watch: "לשים לב",
+  "Deals that need attention": "עסקאות שדורשות טיפול", "health score of 100": "ציון בריאות מתוך 100", "the pipeline": "הצנרת",
+  "Every open deal has a recent touch, a contact and a next step.": "לכל עסקה פתוחה יש מגע אחרון, איש קשר וצעד הבא.",
+  "Pipeline figures": "נתוני הצנרת", "Open pipeline": "צנרת פתוחה", "{n} open deals": "{n} עסקאות פתוחות", "Weighted forecast": "תחזית משוקללת",
+  "amount × stage probability": "סכום × הסתברות השלב", Won: "נסגרו בהצלחה", "win rate {n}%": "אחוז זכייה {n}%", "Average sales cycle": "מחזור מכירה ממוצע",
+  "{n} days": "{n} ימים", "from created to won": "מפתיחה ועד סגירה", "Overdue tasks": "משימות באיחור", "{n} leads open": "{n} לידים פתוחים",
+  "Pipeline value by stage": "ערך הצנרת לפי שלב", "{n} deals": "{n} עסקאות", "Which lead sources convert": "אילו מקורות לידים מומרים",
+  Source: "מקור", Converted: "הומרו", Rate: "שיעור", "Timeline events per day, last 14 days": "אירועים ביום בטיימליין, 14 הימים האחרונים",
   // lists
-  "All {x}": "כל ה{x}", "Assigned to me": "משויך אליי", "Filter…": "סינון…", "+ New {x}": "+ {x} חדש/ה", "No records match.": "אין רשומות מתאימות.",
-  Name: "שם", Score: "ציון", "All owners": "כל הבעלים", "+ New deal": "+ עסקה חדשה",
-  // detail
-  "Convert lead": "המרת ליד", "✦ Ask Copilot": "✦ לשאול את הקופיילוט", Edit: "עריכה", Delete: "מחיקה", "Delete {x}?": "למחוק את {x}?",
-  "Win probability": "הסתברות לזכייה", "Linked to": "מקושר ל", Created: "נוצר", via: "דרך", "Deal health": "בריאות העסקה",
-  "On track — nothing to fix.": "במסלול, אין מה לתקן.", "Why this score?": "למה הציון הזה?", "Converted →": "הומר ←", contact: "איש קשר",
-  deal: "עסקה", company: "חברה", "+ Task": "+ משימה", "+ Note": "+ הערה", "No tasks": "אין משימות", "No notes": "אין הערות", due: "יעד",
-  Timeline: "טיימליין", "No activity yet": "אין פעילות עדיין",
-  "Creates": "ייווצרו", "Also create a deal": "ליצור גם עסקה", "Deal name": "שם העסקה", "Amount (₪)": "סכום (₪)", Cancel: "ביטול", Convert: "המרה",
-  "Creates the company (or reuses it) and contact, and moves the lead's notes and tasks over.":
-    "ייווצרו חברה (או שימוש בקיימת) ואיש קשר, וההערות והמשימות של הליד יעברו אליהם.",
-  // insight
-  "✦ AI insight": "✦ תובנת AI", Generate: "הפקה", "Analyzing…": "מנתח…",
-  "Claude reads this record's timeline, notes and tasks and suggests what to do next.": "Claude קורא את הטיימליין, ההערות והמשימות של הרשומה ומציע מה לעשות עכשיו.",
-  "· in {n}d": "· בעוד {n} ימים", "✓ added": "✓ נוסף", "Follow-up email draft:": "טיוטת מייל המשך:", Copy: "העתקה", "✓ copied": "✓ הועתק",
+  "Any {x}": "כל ה{x}", Show: "הצגה", "Assigned to me": "משויך אליי", "Filter by name": "סינון לפי שם", "New {x}": "{x} חדש/ה",
+  "Nothing matches this filter.": "אין רשומות שמתאימות לסינון.", "Clear the filter": "ניקוי הסינון", "No {x} yet.": "עדיין אין {x}.",
+  "Deals appear here when you create one or convert a lead.": "עסקאות מופיעות כאן כשיוצרים עסקה או ממירים ליד.",
+  "New leads land here from the web form, imports, or when you add one.": "לידים חדשים מגיעים לכאן מטופס האתר, מייבוא או כשמוסיפים ידנית.",
+  "Companies are created with deals and converted leads, or by hand.": "חברות נוצרות עם עסקאות ולידים שהומרו, או ידנית.",
+  "People are added with converted leads, or by hand.": "אנשי קשר נוספים עם לידים שהומרו, או ידנית.",
+  "Tasks come from you, from rules, and from the assistant's next steps.": "משימות מגיעות ממך, מכללים ומהצעדים שהעוזר מציע.",
+  Done: "בוצע", "Mark “{x}” done": "לסמן את “{x}” כבוצע", Name: "שם", Score: "ציון",
+  // pipeline
+  "Everyone's deals": "העסקאות של כולם", "New deal": "עסקה חדשה", "Drop a deal here": "אפשר לגרור לכאן עסקה", "No company": "ללא חברה",
+  "₪{x} open across {n} deals. Drag a card to move its stage.": "₪{x} פתוחים ב-{n} עסקאות. גוררים כרטיס כדי להעביר שלב.",
+  // record
+  Breadcrumb: "נתיב", "Convert lead": "המרת ליד", "Ask the assistant": "לשאול את העוזר", Edit: "עריכה", Delete: "מחיקה",
+  "Delete {x}?": "למחוק את {x}?", "Delete {x}": "מחיקת {x}", "Move to stage": "העברה לשלב", "Win probability": "הסתברות לזכייה",
+  "Linked to": "מקושר ל", Created: "נוצר", "by hand": "ידנית", "via assistant": "דרך העוזר", "via rule": "דרך כלל", "via import": "דרך ייבוא",
+  "This record was deleted or never existed.": "הרשומה נמחקה או שלא הייתה קיימת.", "Back to {x}": "חזרה ל{x}",
+  "Couldn't load this record: {e}": "לא הצלחנו לטעון את הרשומה: {e}",
+  "Deal health": "בריאות העסקה", "{n} of 100": "{n} מתוך 100", "Recent contact, a named buyer and a next step. Nothing to fix.": "מגע אחרון, איש קשר מוגדר וצעד הבא. אין מה לתקן.",
+  "How the score adds up": "איך הציון מצטבר", "Converted into": "הומר ל", contact: "איש קשר", deal: "עסקה", company: "חברה", lead: "ליד", task: "משימה", note: "הערה",
+  "No people linked yet.": "עדיין אין אנשי קשר מקושרים.", "No deals yet.": "עדיין אין עסקאות.", "Add task": "הוספת משימה", "Add note": "הוספת הערה",
+  "No open tasks. Add one, or take a next step from the assistant's read.": "אין משימות פתוחות. אפשר להוסיף, או לקחת צעד הבא מהקריאה של העוזר.",
+  "No notes yet. Paste a call into the assistant and it will propose one.": "עדיין אין הערות. מדביקים שיחה לעוזר והוא יציע אחת.",
+  Timeline: "טיימליין", "Nothing has happened to this record yet.": "עדיין לא קרה כלום ברשומה הזו.", "the timeline": "הטיימליין", to: "ל",
+  "Convert {x}": "המרת {x}", "Also open a deal": "לפתוח גם עסקה", "Deal name": "שם העסקה", "Amount (₪)": "סכום (₪)", Cancel: "ביטול",
+  "Creates the company (or reuses it) and the contact, and moves the lead's notes and tasks over.": "נוצרים חברה (או שימוש בקיימת) ואיש קשר, וההערות והמשימות של הליד עוברות אליהם.",
+  // read-out
+  "Assistant's read": "הקריאה של העוזר", "Read again": "לקרוא שוב", "Reading…": "קורא…", "Read this record": "לקרוא את הרשומה",
+  "The assistant couldn't read this record: {e}": "העוזר לא הצליח לקרוא את הרשומה: {e}",
+  "The assistant reads this record's timeline, notes and tasks, then suggests the next step.": "העוזר קורא את הטיימליין, ההערות והמשימות של הרשומה ומציע את הצעד הבא.",
+  Risks: "סיכונים", "Next steps": "צעדים הבאים", "in {n} days": "בעוד {n} ימים", "Add as task": "להוסיף כמשימה", "Task added": "המשימה נוספה",
+  "Follow-up email": "מייל המשך", "Copy email": "העתקת המייל", Copied: "הועתק",
   accelerating: "מאיץ", steady: "יציב", stalling: "נתקע", "at risk": "בסיכון", closed: "סגור",
   // form
-  New: "חדש/ה", Save: "שמירה", "Saving…": "שומר…",
-  // copilot
-  "about {x}": "על {x}", "New chat": "שיחה חדשה", "searched the CRM": "חיפש ב-CRM", "listed records": "שלף רשומות", "read a record": "קרא רשומה",
-  "checked the pipeline": "בדק את הצנרת", open: "פתיחה",
-  "Ask anything about your CRM, or paste call notes and I'll propose the updates. Nothing changes until you approve it.":
-    "אפשר לשאול כל דבר על ה-CRM, או להדביק סיכום שיחה ואציע את העדכונים. שום דבר לא משתנה עד שתאשרו.",
-  "What should I focus on today?": "על מה כדאי לי להתמקד היום?",
-  "Which deals are at risk and what should I do about each?": "אילו עסקאות בסיכון ומה לעשות עם כל אחת?",
-  "Summarize the pipeline by stage and owner": "סכם את הצנרת לפי שלב ובעלים",
-  "Summarize this and suggest the next step": "סכם והצע את הצעד הבא", "Draft a follow-up email": "נסח מייל המשך", "Log these call notes: ": "תעד את סיכום השיחה: ",
-  "Copilot wants to make {n} change(s):": "הקופיילוט רוצה לבצע {n} שינויים:", "Apply selected": "ביצוע הנבחרים", "Reject all": "דחיית הכול",
-  "Approve or reject the changes above first": "קודם צריך לאשר או לדחות את השינויים", "Ask, or paste call notes…": "שאלה, או הדבקת סיכום שיחה…", Send: "שליחה",
-  "Set ANTHROPIC_API_KEY on the server and restart. Every change Copilot proposes waits for your approval.": "הגדירו ANTHROPIC_API_KEY בשרת והפעילו מחדש. כל שינוי שהקופיילוט מציע מחכה לאישור.",
+  "Edit {x}": "עריכת {x}", "Save changes": "שמירת השינויים", "Create {x}": "יצירת {x}", "Saving…": "שומר…",
+  // assistant
+  "Working on {x}": "עובד על {x}", "Offline demo: answers come from simple rules over this workspace": "דמו לא מקוון: התשובות מגיעות מכללים פשוטים על נתוני הסביבה",
+  "New conversation": "שיחה חדשה", "Close the assistant": "סגירת העוזר", "The assistant is switched off on this server.": "העוזר כבוי בשרת הזה.",
+  "Set ANTHROPIC_API_KEY, or KESHER_AI=demo for the offline demo, and restart.": "מגדירים ANTHROPIC_API_KEY, או KESHER_AI=demo לדמו הלא מקוון, ומפעילים מחדש.",
+  "Ask about the pipeline, or paste notes from a call. I read records on my own; anything I'd change waits here for your approval.":
+    "אפשר לשאול על הצנרת או להדביק סיכום שיחה. אני קורא רשומות לבד, וכל מה שהייתי משנה מחכה כאן לאישור שלך.",
+  "What should I focus on today?": "על מה כדאי לי להתמקד היום?", "Which deals are at risk and what should I do about each?": "אילו עסקאות בסיכון ומה לעשות עם כל אחת?",
+  "Summarize the pipeline by stage and owner": "סכם את הצנרת לפי שלב ובעלים", "Summarize this and suggest the next step": "סכם והצע את הצעד הבא",
+  "Draft a follow-up email": "נסח מייל המשך", "Log these call notes: ": "תעד את סיכום השיחה: ",
+  "searched the CRM": "חיפש ב-CRM", "listed records": "שלף רשומות", "read a record": "קרא רשומה", "checked the pipeline": "בדק את הצנרת",
+  "Applied changes": "שינויים שבוצעו", done: "בוצע", failed: "נכשל", skipped: "דולג", open: "פתיחה",
+  "Apply {n} selected": "ביצוע {n} שנבחרו", "Discard all": "ביטול הכול",
+  "Working…": "עובד…", "That didn't go through: {e}": "הפעולה לא עברה: {e}", "Message the assistant": "הודעה לעוזר",
+  "Approve or discard the changes above first": "קודם צריך לאשר או לבטל את השינויים", "Ask, or paste call notes": "שאלה, או הדבקת סיכום שיחה", Send: "שליחה",
   // automations
-  "+ New rule": "+ כלל חדש", "When something happens to a record → check conditions → run actions. Use {{record.field}} in text.":
-    "כשמשהו קורה לרשומה ← בדיקת תנאים ← הפעלת פעולות. אפשר להשתמש ב-{{record.field}} בטקסט.",
-  "✦ Describe a rule in your own words": "✦ תארו כלל במילים שלכם",
-  "e.g. When a deal over 100K is created, have AI write a brief for the CEO and add a call task for tomorrow":
-    "למשל: כשנפתחת עסקה מעל 100 אלף, ה-AI יכתוב תדריך למנכ\"ל ותיווצר משימת שיחה למחר",
-  "Draft rule": "ניסוח כלל", "Drafting…": "מנסח…", "{n} runs": "{n} הרצות", last: "אחרונה", "Run log": "יומן הרצות", When: "מתי", Rule: "כלל",
-  Record: "רשומה", Status: "סטטוס", Output: "פלט", "No runs yet — move a deal to “proposal” to see one.": "אין הרצות עדיין. העבירו עסקה לשלב \"הצעה\" כדי לראות אחת.",
-  "✦ AI steps": "✦ צעדי AI", Instructions: "הנחיות", Result: "תוצאה", "Edit rule": "עריכת כלל", "New rule": "כלל חדש", "(all must match)": "(כולם צריכים להתקיים)",
-  Conditions: "תנאים", Actions: "פעולות", "+ condition": "+ תנאי", "+ action": "+ פעולה", "Save rule": "שמירת כלל", "✦ AI analysis": "✦ ניתוח AI",
+  "Each rule waits for an event on a record, checks its conditions, then runs its steps in order.": "כל כלל מחכה לאירוע ברשומה, בודק את התנאים ומריץ את הצעדים לפי הסדר.",
+  "New rule": "כלל חדש", "Describe a rule and the assistant drafts it": "מתארים כלל והעוזר מנסח אותו",
+  "You review the draft in the editor before anything is saved.": "בודקים את הטיוטה בעורך לפני שמשהו נשמר.",
+  "When a deal over ₪100,000 is created, add a call task for tomorrow": "כשנפתחת עסקה מעל ₪100,000, להוסיף משימת שיחה למחר",
+  "Drafting…": "מנסח…", "Draft the rule": "ניסוח הכלל", "It needs one fix before saving: {e}": "צריך תיקון אחד לפני השמירה: {e}",
+  "The assistant couldn't draft that: {e}": "העוזר לא הצליח לנסח את זה: {e}", Rules: "כללים", "{n} active": "{n} פעילים", "the rules": "הכללים",
+  "No rules yet. Describe one above, or start from a blank rule.": "עדיין אין כללים. אפשר לתאר אחד למעלה, או להתחיל מכלל ריק.",
+  "{x} is on": "{x} פעיל", "{n} runs": "{n} הרצות", "last {x}": "אחרונה {x}", "Delete rule": "מחיקת הכלל", "Delete the rule “{x}”?": "למחוק את הכלל “{x}”?",
+  When: "כאשר", If: "אם", Then: "אז", And: "וגם", and: "וגם",
+  is: "הוא", "is not": "אינו", "is over": "מעל", "is at least": "לפחות", "is under": "מתחת ל", "is at most": "לכל היותר", contains: "מכיל",
+  changes: "משתנה", "changes to": "משתנה ל", "changes from": "משתנה מ", "is empty": "ריק", "is set": "מוגדר",
+  "create the task": "ליצור את המשימה", "due in {n} days": "יעד בעוד {n} ימים", "add the note": "להוסיף את ההערה", "hand it to the assistant": "להעביר לעוזר",
+  set: "להגדיר", "send a webhook to": "לשלוח Webhook אל",
+  "Recent runs": "הרצות אחרונות", "No runs yet. Move a deal to Proposal and the first rule will fire.": "עדיין אין הרצות. מעבירים עסקה לשלב הצעה והכלל הראשון ירוץ.",
+  Rule: "כלל", Record: "רשומה", Result: "תוצאה", Steps: "צעדים", "dry run": "הרצת ניסיון", success: "הצליח",
+  "Assistant steps": "צעדי העוזר", "run in the background so saving a record never waits": "רצים ברקע, כך ששמירת רשומה לא מחכה",
+  "Asked to": "התבקש", Status: "סטטוס", Outcome: "תוצאה", "read the record after it changed": "לקרוא את הרשומה אחרי שהשתנתה",
+  "Edit rule": "עריכת כלל", "(every condition must match)": "(כל התנאים צריכים להתקיים)", Field: "שדה", Operator: "יחס", Value: "ערך", Values: "ערכים",
+  "field, for example stage": "שדה, למשל stage", value: "ערך", "Remove condition": "הסרת תנאי", "Add condition": "הוספת תנאי",
+  Step: "צעד", title: "כותרת", "Due in days": "יעד בימים", days: "ימים", "note text": "תוכן ההערה", Instructions: "הנחיות",
+  "What the assistant should do, for example draft a follow-up email as a note": "מה העוזר צריך לעשות, למשל לנסח מייל המשך כהערה",
+  "Remove step": "הסרת צעד", "Add step": "הוספת צעד", "Save rule": "שמירת הכלל", "Give the rule a name so the run log can show it.": "צריך לתת לכלל שם כדי שיופיע ביומן ההרצות.",
+  create_task: "יצירת משימה", add_note: "הוספת הערה", update_record: "עדכון שדה", webhook: "Webhook", ai_agent: "צעד של העוזר",
+  queued: "בתור", running: "רץ",
   // fields
   Domain: "דומיין", Industry: "תעשייה", Employees: "עובדים", "Annual revenue": "הכנסה שנתית", City: "עיר", Owner: "בעלים",
   "First name": "שם פרטי", "Last name": "שם משפחה", Phone: "טלפון", "Job title": "תפקיד", Company: "חברה", Budget: "תקציב", Description: "תיאור",
@@ -88,30 +125,45 @@ const HE: Record<string, string> = {
   // values
   new: "חדש", qualified: "מוסמך", proposal: "הצעה", negotiation: "משא ומתן", won: "נסגר", lost: "הפסד",
   contacted: "נוצר קשר", unqualified: "לא רלוונטי", converted: "הומר", referral: "הפניה", event: "אירוע", website: "אתר", ads: "פרסום", cold: "פנייה קרה",
-  todo: "לביצוע", "in progress": "בתהליך", done: "בוצע", success: "הצליח", failed: "נכשל", queued: "בתור", running: "רץ", skipped: "דולג",
-  Close: "סגירה", "This can't be undone from the app.": "אי אפשר לבטל את זה מתוך המערכת.",
-  // landing
-  "Open the demo": "לפתוח את הדמו", "AI-native sales CRM": "CRM מכירות שבנוי סביב AI", "The CRM that does the follow-up.": "ה-CRM שעושה את המעקב בשבילך.",
-  "Paste a call, get the updates. Claude reads your whole pipeline, proposes every change, and waits for your approval.":
-    "מדביקים סיכום שיחה ומקבלים את העדכונים. Claude קורא את כל הצנרת, מציע כל שינוי ומחכה לאישור שלך.",
-  "See how it works": "איך זה עובד", Proposal: "הצעה", Negotiation: "משא ומתן", Qualified: "מוסמך",
-  "Move to Proposal · ₪240,000 · close Nov 20": "מעבר להצעה · ₪240,000 · סגירה ב-20 בנובמבר", "Task: send proposal tomorrow": "משימה: לשלוח הצעה מחר",
-  "Paste the call. Approve the changes.": "מדביקים את השיחה. מאשרים את השינויים.",
-  "Copilot pulls out who, what was agreed, the amount and the date, then lines up the exact updates. Reads happen on their own; every write waits for you.":
-    "הקופיילוט מזהה מי, על מה סוכם, הסכום והתאריך, ומכין את העדכונים המדויקים. קריאה קורית לבד, וכל כתיבה מחכה לך.",
-  "Call with Adi: budget confirmed, wants the proposal at 240K, decision by Nov 20.": "שיחה עם עדי: התקציב אושר, רוצה הצעה ב-240 אלף, החלטה עד 20 בנובמבר.",
-  "Update deal: stage → PROPOSAL, amount → 240,000": "עדכון עסקה: שלב ← הצעה, סכום ← 240,000", "Add note “Call with Adi”": "הוספת הערה “שיחה עם עדי”",
-  "Create task “Send proposal” (due in 1d)": "יצירת משימה “לשלוח הצעה” (בעוד יום)", "AI in every part of the work.": "AI בכל חלק של העבודה.",
-  "Today's briefing": "התדריך של היום", "Every morning: what matters, which deal, why now.": "כל בוקר: מה חשוב, איזו עסקה, ולמה עכשיו.",
-  "Analysis in the background": "ניתוח ברקע", "New leads and deals that change stage are read before you open them.": "לידים חדשים ועסקאות שמשנות שלב נקראים עוד לפני שפתחת אותם.",
-  "Rules in plain language": "כללים בשפה פשוטה", "Describe an automation in English or Hebrew; the engine validates the draft.": "מתארים אוטומציה בעברית או באנגלית, והמנוע בודק את הטיוטה.",
-  "An audit trail you can trust": "תיעוד שאפשר לסמוך עליו", "Every AI change carries a ✦ badge and a field-level diff.": "כל שינוי של AI מסומן ב-✦ ומציג בדיוק מה השתנה.",
-  "Try it on a live demo workspace.": "נסו את זה בסביבת דמו חיה.", "Nothing changes until you say so.": "שום דבר לא משתנה בלי אישור שלך.",
-  "Try it: pick what Copilot may apply. The timeline shows exactly what will land, marked as AI.": "נסו: בחרו מה הקופיילוט רשאי לבצע. הטיימליין מראה בדיוק מה ייכנס, מסומן כ-AI.",
-  "Stage → Proposal": "שלב ← הצעה", "Amount → ₪240,000": "סכום ← ₪240,000", "Follow-up task tomorrow": "משימת המשך למחר", "Nothing will change.": "שום דבר לא ישתנה.",
-  // timeline
-  created: "יצר/ה", updated: "עדכן/ה", deleted: "מחק/ה", "⚡ automation": "⚡ אוטומציה", empty: "ריק",
+  todo: "לביצוע", "in progress": "בתהליך",
+  Proposal: "הצעה", Negotiation: "משא ומתן", Qualified: "מוסמך",
+  // timeline verbs
+  created: "יצר/ה", updated: "עדכן/ה", deleted: "מחק/ה", empty: "ריק",
   "just now": "עכשיו", "{n}m ago": "לפני {n} דק׳", "{n}h ago": "לפני {n} שע׳", "{n}d ago": "לפני {n} ימים",
+  // product page
+  Page: "עמוד", "Paste the call.": "מדביקים את השיחה.", "Approve the update.": "מאשרים את העדכון.",
+  "KESHER's assistant reads your sales notes, drafts the CRM changes, and writes nothing until you approve each one.":
+    "העוזר של KESHER קורא את סיכומי המכירה, מנסח את השינויים ב-CRM, ולא כותב כלום עד שמאשרים כל אחד מהם.",
+  "Works without an API key in an offline demo mode. Add a key and the same screens use Claude Opus 5.5.":
+    "עובד בלי מפתח API במצב דמו לא מקוון. עם מפתח, אותם מסכים עובדים עם Claude Opus 5.5.",
+  "Interactive sample of the assistant": "דוגמה אינטראקטיבית של העוזר", "Sample deal. Runs in your browser; nothing is sent.": "עסקת דוגמה. רץ בדפדפן, שום דבר לא נשלח.",
+  Reset: "איפוס", "Negev Robotics, fleet pilot": "נגב רובוטיקס, פיילוט צי", "Call notes": "סיכום השיחה", "Paste or type notes from a call": "מדביקים או כותבים סיכום שיחה",
+  "Nothing to propose yet. Mention an amount, a date or a next step.": "עדיין אין מה להציע. כדאי לציין סכום, תאריך או צעד הבא.",
+  "Unchecked items are discarded.": "פריטים שלא סומנו לא יבוצעו.", "via assistant, approved by you": "דרך העוזר, באישור שלך",
+  "Move the stage to {x}": "להעביר לשלב {x}", "Set the amount to {x}": "לעדכן את הסכום ל-{x}", "Set the close date to {x}": "לעדכן את תאריך הסגירה ל-{x}",
+  "Create the task “Send the proposal”, due in 2 days": "ליצור משימה “לשלוח את ההצעה”, יעד בעוד יומיים",
+  "Create the task “Book the site visit”, due in 5 days": "ליצור משימה “לתאם ביקור באתר”, יעד בעוד 5 ימים",
+  "Save these call notes on the deal": "לשמור את סיכום השיחה בעסקה",
+  "A ranked list of where to start, every morning.": "כל בוקר, רשימה מדורגת של מאיפה להתחיל.",
+  "The assistant reads deal health, overdue tasks and hot leads, then writes a short memo. Every line links to its record.":
+    "העוזר קורא את בריאות העסקאות, המשימות באיחור והלידים החמים, וכותב מזכר קצר. כל שורה מקשרת לרשומה שלה.",
+  "Sample morning memo": "מזכר בוקר לדוגמה", "Sample memo": "מזכר לדוגמה",
+  "Two deals worth ₪415K have gone quiet; start with Negev Robotics before Thursday.": "שתי עסקאות בשווי ₪415K שקטות מדי. כדאי להתחיל בנגב רובוטיקס לפני יום חמישי.",
+  "Proposal promised for Thursday. No task exists for it yet.": "הובטחה הצעה עד יום חמישי, ועדיין אין לה משימה.",
+  "Yam Logistics, renewal": "ים לוגיסטיקה, חידוש", "No contact in 16 days and the close date passed last week.": "אין מגע 16 ימים, ותאריך הסגירה עבר בשבוע שעבר.",
+  "Orion Cyber, pilot": "אוריון סייבר, פיילוט", "Grade A lead from a referral, still unassigned.": "ליד בדרגה A מהפניה, עדיין בלי אחראי.",
+  "Also in the workspace": "עוד בסביבת העבודה",
+  "A pipeline you drag": "צנרת שגוררים", "Six stages, each move is one write, and the stage meter fills as a deal advances.": "שישה שלבים, כל הזזה היא כתיבה אחת, ומד השלב מתמלא ככל שהעסקה מתקדמת.",
+  "Lead scores with reasons": "ציון לידים עם נימוק", "Every point names its cause: a business email, a decision-maker title, a stated budget.": "לכל נקודה יש סיבה: אימייל עסקי, תפקיד של מקבל/ת החלטות, תקציב מוצהר.",
+  "Rules in plain language": "כללים בשפה פשוטה", "Describe a rule in English or Hebrew; the assistant drafts it and the engine checks it before you save.": "מתארים כלל בעברית או באנגלית, העוזר מנסח אותו והמנוע בודק אותו לפני השמירה.",
+  "A timeline with sources": "טיימליין עם מקורות", "Every change shows who made it, by hand, by a rule or by the assistant, with the field before and after.": "כל שינוי מראה מי ביצע אותו, ידנית, כלל או העוזר, עם הערך לפני ואחרי.",
+  "Hebrew and English": "עברית ואנגלית", "The whole interface mirrors for right-to-left, with light and dark themes.": "כל הממשק מתהפך לימין-לשמאל, עם ערכה בהירה וכהה.",
+  "Try it on the sample workspace.": "לנסות על סביבת הדוגמה.", "Twelve companies, thirty deals and twenty leads, reset whenever the server restarts.": "שתים עשרה חברות, שלושים עסקאות ועשרים לידים, מתאפסים בכל הפעלה מחדש של השרת.",
+  "KESHER is open source under the MIT license.": "KESHER הוא קוד פתוח ברישיון MIT.", "Source on GitHub": "הקוד ב-GitHub",
+  // counts
+  "Waiting for your approval: 1 change": "ממתין לאישור שלך: שינוי אחד", "Waiting for your approval: {n} changes": "ממתין לאישור שלך: {n} שינויים",
+  "in 1 day": "מחר", "1 open deal": "עסקה פתוחה אחת", "1 day": "יום אחד", "1 lead open": "ליד פתוח אחד", "1 deal": "עסקה אחת",
+  "due tomorrow": "יעד מחר", "1 run": "הרצה אחת", "day from created to won": "יום מפתיחה ועד סגירה", "days from created to won": "ימים מפתיחה ועד סגירה",
 };
 
 export function t(s: string, vars?: Record<string, string | number>): string {
@@ -119,6 +171,9 @@ export function t(s: string, vars?: Record<string, string | number>): string {
   if (vars) for (const [k, v] of Object.entries(vars)) out = out.replace(`{${k}}`, String(v));
   return out;
 }
+
+/** Count-aware translation: the "one" key for exactly 1, the "many" key otherwise. */
+export const tn = (n: number, one: string, many: string, vars?: Record<string, string | number>) => t(n === 1 ? one : many, { n, ...vars });
 
 /** Translate an enum-like value (stage, status, source) for display. */
 export const tv = (v: string) => t(String(v).toLowerCase().replace(/_/g, " "));
@@ -147,7 +202,7 @@ const REASON_HE: [RegExp, (m: RegExpMatchArray) => string][] = [
   [/^(\d+) engagement events$/, (m) => `${m[1]} אינטראקציות`],
 ];
 export function tReason(r: string): string {
-  if (lang !== "he") return r;
+  if (lang !== "he") return r.charAt(0).toUpperCase() + r.slice(1);
   for (const [re, f] of REASON_HE) { const m = r.match(re); if (m) return f(m); }
   return r;
 }

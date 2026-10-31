@@ -41,7 +41,7 @@ def test_demo_copilot_turns_notes_into_approved_changes(client, demo):
     upd = out["pending"][0]["input"]["fields"]
     assert {"field": "stage", "value": "PROPOSAL"} in upd and {"field": "amount", "value": "75000"} in upd
     out = client.post(f"/api/ai/threads/{t['id']}/resolve", json={"decisions": {p["tool_use_id"]: True for p in out["pending"]}}).json()
-    assert out["pending"] == [] and out["display"][-1]["text"].startswith("Done: 3")
+    assert out["pending"] == [] and out["display"][-1]["text"].startswith("3 changes applied")
     d = client.get(f"/api/deals/{deal['id']}").json()
     assert d["stage"] == "PROPOSAL" and d["amount_micros"] == 75_000_000_000
 
@@ -62,6 +62,9 @@ def test_demo_insight_briefing_and_rule_draft(client, demo):
     b = client.post("/api/ai/briefing").json()
     assert b["headline"] and any(f["record_id"] == deal["id"] for f in b["focus"])
     assert client.get("/api/ai/briefing").json()["id"] == b["id"]
+    assert client.get("/api/ai/briefing?lang=he").json() is None  # an English memo is not shown to a Hebrew reader
+    hb = client.post("/api/ai/briefing?lang=he").json()
+    assert client.get("/api/ai/briefing?lang=he").json()["id"] == hb["id"] and client.get("/api/ai/briefing").json()["id"] == b["id"]
     d = client.post("/api/ai/automation-draft", json={"prompt": "When a deal moves to negotiation, have AI write a brief and create a call task in 2 days"}).json()
     assert d["trigger_event"] == "deal.updated"
     assert d["conditions"][0] == {"field": "stage", "op": "changed_to", "value": "NEGOTIATION"}

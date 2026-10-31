@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import datetime
 from types import SimpleNamespace
 from typing import Any
 
@@ -35,6 +36,18 @@ HEALTH_HE = {
     "no_next_step": ("אין צעד הבא פתוח", "ליצור משימת המשך"),
     "stuck": ("תקועה באותו שלב {n} ימים", "לבדוק מחדש התאמה או לקדם שלב"),
 }
+
+
+_HE_MONTHS = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"]
+
+
+def _day(iso, he: bool) -> str:
+    """'2026-10-27' as '27 Oct' or '27 באוקטובר'; anything unparseable is returned as is."""
+    try:
+        d = datetime.fromisoformat(str(iso)[:10])
+    except ValueError:
+        return str(iso)
+    return f"{d.day} ב{_HE_MONTHS[d.month - 1]}" if he else d.strftime("%-d %b")
 
 
 def _issue(i: dict, he: bool) -> tuple[str, str]:
@@ -142,8 +155,10 @@ def _copilot(messages: list[dict]) -> SimpleNamespace:
         rejected = sum("rejected" in str(r.get("content")) for r in results.values())
         applied = len([c for c in calls if c["name"] in {"update_record", "create_task", "add_note", "create_record", "convert_lead"}]) - rejected
         if he:
-            return _msg(_text(f"בוצע: {applied} שינויים נשמרו" + (f", {rejected} נדחו" if rejected else "") + ". הכול מופיע בטיימליין עם תג ✦ AI."))
-        return _msg(_text(f"Done: {applied} change(s) applied" + (f", {rejected} skipped" if rejected else "") + ". Everything is on the timeline with a ✦ AI badge."))
+            done = "שינוי אחד נשמר" if applied == 1 else f"{applied} שינויים נשמרו"
+            return _msg(_text(f"{done}" + (f", {rejected} נדחו" if rejected else "") + ". כל שינוי מופיע בציר הזמן עם הסימון 'דרך העוזר'."))
+        done = "1 change applied" if applied == 1 else f"{applied} changes applied"
+        return _msg(_text(done + (f", {rejected} skipped" if rejected else "") + ". Each one is on the timeline, marked via assistant."))
 
     call = calls[0]
     try:
@@ -158,12 +173,12 @@ def _copilot(messages: list[dict]) -> SimpleNamespace:
             lines = [f"צנרת פתוחה ₪{k.get('open_pipeline', 0):,.0f}, תחזית משוקללת ₪{k.get('weighted_forecast', 0):,.0f}, אחוז זכייה {k.get('win_rate', 0)}%."]
             if risky:
                 lines.append("כדאי להתחיל מאלה:")
-                lines += [f"- [{r['name']}](/deal/{r['id']}): {' ← '.join(_issue(r['issues'][0], True)) if r['issues'] else ''}" for r in risky]
+                lines += [f"- [{r['name']}](/deal/{r['id']}): {'. '.join(_issue(r['issues'][0], True)) if r['issues'] else ''}" for r in risky]
         else:
             lines = [f"Open pipeline ₪{k.get('open_pipeline', 0):,.0f}, weighted forecast ₪{k.get('weighted_forecast', 0):,.0f}, win rate {k.get('win_rate', 0)}%."]
             if risky:
                 lines.append("Where I'd start today:")
-                lines += [f"- [{r['name']}](/deal/{r['id']}): {r['issues'][0]['message']} → {r['issues'][0]['action']}" if r["issues"] else f"- [{r['name']}](/deal/{r['id']})" for r in risky]
+                lines += [f"- [{r['name']}](/deal/{r['id']}): {r['issues'][0]['message']}. {r['issues'][0]['action']}" if r["issues"] else f"- [{r['name']}](/deal/{r['id']})" for r in risky]
         return _msg(_text("\n".join(lines)))
 
     if call["name"] == "search_records":
@@ -282,7 +297,7 @@ def _briefing(content: str):
                                why=f"{'ציון' if he else 'score'} {lead['score']}" + (f" · {why}" if why else ""), record_type="lead", record_id=lead["id"]))
     for t in ctx.get("overdue_tasks", [])[:1]:
         focus.append(FocusItem(title=(f"לסגור משימה באיחור: {t['title']}" if he else f"Clear overdue task: {t['title']}"),
-                               why=(f"היה אמור להיות עד {t['due']}" if he else f"was due {t['due']}"), record_type="task", record_id=t["id"]))
+                               why=(f"היה אמור להיות עד {_day(t['due'], he)}" if he else f"was due {_day(t['due'], he)}"), record_type="task", record_id=t["id"]))
     if len(focus) < 3:
         seen = {(f.record_type, f.record_id) for f in focus}
         for d in ctx.get("largest_open_deals", []):
@@ -331,7 +346,7 @@ def _automation(content: str):
     if not actions or any(w in low for w in ("task", "call", "follow", "משימה", "להתקשר", "מעקב")):
         actions.append(DraftAction(type="create_task", title="Follow up: {{record.display_name}}", body=None, due_in_days=due, url=None, values=None, instructions=None))
     label = {"ai_agent": "AI brief", "create_task": "task", "webhook": "webhook"}
-    when = f"New {obj}" if created else (f"{obj.title()} → {st.title()}" if st else f"{obj.title()} updated")
+    when = f"New {obj}" if created else (f"{obj.title()} moves to {st.title()}" if st else f"{obj.title()} updated")
     name = f"{when}: " + " + ".join(label[a.type] for a in actions)
     explanation = f"When a {obj} is {'created' if created else 'updated'}" + (f" and matches {len(conds)} condition(s)" if conds else "") + ", run: " + ", ".join(a.type for a in actions) + "."
     return AutomationDraft(name=name, trigger_event=trigger, conditions=conds, actions=actions, explanation=explanation)

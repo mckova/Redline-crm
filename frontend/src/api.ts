@@ -33,7 +33,7 @@ export const money = (micros: number | null | undefined, cur = "ILS") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: cur, maximumFractionDigits: 0 }).format((micros ?? 0) / 1e6);
 export const compact = (n: number) =>
   new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(n);
-export const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString(locale, { day: "2-digit", month: "short", year: "numeric" }) : "—");
+export const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString(locale, { day: "2-digit", month: "short", year: "numeric" }) : "-");
 export const ago = (s: string) => {
   const d = (Date.now() - new Date(s + (s.endsWith("Z") ? "" : "Z")).getTime()) / 1000;
   if (d < 60) return t("just now");

@@ -220,7 +220,7 @@ def convert_lead_core(db: Session, lead: Lead, actor: Actor, create_deal: bool =
             db,
             "deal",
             {
-                "name": deal_name or f"{lead.company_name or lead.display_name} – new deal",
+                "name": deal_name or f"{lead.company_name or lead.display_name}, new deal",
                 "amount_micros": int(amt * 1_000_000),
                 "stage": "QUALIFIED",
                 "company_id": company.id if company else None,

@@ -33,13 +33,13 @@ LEAD_CO = ["Ella Bakery", "Modiin Motors", "Rehovot BioLabs", "Ashdod Port Servi
 
 DEFAULT_RULES = [
     {
-        "name": "Proposal sent → follow-up task in 3 days",
+        "name": "Proposal sent: follow-up task in 3 days",
         "trigger_event": "deal.updated",
         "conditions": [{"field": "stage", "op": "changed_to", "value": "PROPOSAL"}],
         "actions": [{"type": "create_task", "params": {"title": "Follow up on proposal: {{record.name}}", "due_in_days": 3, "assignee": "owner"}}],
     },
     {
-        "name": "Hot lead (score ≥ 70) → call within 1 day",
+        "name": "Hot lead (score 70+): call within a day",
         "trigger_event": "lead.created",
         "conditions": [{"field": "score", "op": "gte", "value": 70}],
         "actions": [
@@ -48,7 +48,7 @@ DEFAULT_RULES = [
         ],
     },
     {
-        "name": "Deal won → onboarding note + webhook",
+        "name": "Deal won: onboarding note and webhook",
         "trigger_event": "deal.updated",
         "conditions": [{"field": "stage", "op": "changed_to", "value": "WON"}],
         "actions": [
@@ -57,7 +57,7 @@ DEFAULT_RULES = [
         ],
     },
     {
-        "name": "✦ Negotiation → AI prepares a negotiation brief",
+        "name": "Negotiation: assistant writes a brief",
         "trigger_event": "deal.updated",
         "enabled": False,  # turn on once ANTHROPIC_API_KEY is set
         "conditions": [{"field": "stage", "op": "changed_to", "value": "NEGOTIATION"}],
@@ -117,7 +117,7 @@ def seed(db: Session, rnd_seed: int = 7) -> None:
         co_contacts = [c for c in contacts if c.company_id == co.id]
         created = now - timedelta(days=rnd.randint(5, 75))
         deal = create_record(db, "deal", {
-            "name": f"{co.name} – {rnd.choice(DEAL_KINDS)}",
+            "name": f"{co.name}, {rnd.choice(DEAL_KINDS)}",
             "amount_micros": rnd.choice([12, 18, 25, 40, 60, 85, 120, 150, 220]) * 1000 * 1_000_000,
             "stage": "NEW", "company_id": co.id, "contact_id": rnd.choice(co_contacts).id if co_contacts and rnd.random() > 0.15 else None,
             "owner_id": co.owner_id, "close_date": (now + timedelta(days=rnd.randint(-10, 60))).isoformat(),

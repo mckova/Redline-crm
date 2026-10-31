@@ -363,13 +363,23 @@ def run_tool(db: Session, name: str, args: dict, actor: Actor) -> dict:
 
 def describe_call(name: str, args: dict) -> str:
     """Human-readable proposal text for the approval card."""
-    f = lambda pairs: ", ".join(f"{p['field']} → {p['value']}" for p in pairs)  # noqa: E731
+    def show(field: str, value) -> str:
+        if field in ("amount", "budget", "annual_revenue"):
+            try:
+                return f"₪{float(value):,.0f}"
+            except (TypeError, ValueError):
+                return str(value)
+        if field == "stage" and isinstance(value, str):
+            return value.replace("_", " ").capitalize()
+        return str(value)
+
+    f = lambda pairs: ", ".join(f"{p['field'].replace('_', ' ')} to {show(p['field'], p['value'])}" for p in pairs)  # noqa: E731
     if name == "create_record":
         return f"Create {args['record_type']}: {f(args['fields'])}"
     if name == "update_record":
         return f"Update {args['record_type']} #{args['record_id']}: {f(args['fields'])}"
     if name == "create_task":
-        due = f" (due in {args['due_in_days']:g}d)" if args.get("due_in_days") is not None else ""
+        due = f", due in {args['due_in_days']:g} days" if args.get("due_in_days") is not None else ""
         return f"Create task “{args['title']}”{due}"
     if name == "add_note":
         return f"Add note “{args['title']}”"
@@ -380,7 +390,7 @@ def describe_call(name: str, args: dict) -> str:
 
 # --------------------------------------------------------------------------- copilot agent
 
-COPILOT_SYSTEM = """You are KESHER Copilot, the AI teammate inside a sales CRM used by a small Israeli B2B sales team.
+COPILOT_SYSTEM = """You are the KESHER assistant, the AI teammate inside a sales CRM used by a small Israeli B2B sales team.
 
 You can read anything in the CRM with your tools, and you can propose changes (create/update records, tasks, notes, lead conversion). Every change you propose is shown to the user as an approval card and only runs after they approve, so propose changes directly rather than asking for permission in text.
 
@@ -785,6 +795,6 @@ def generate_briefing(db: Session, user_id: int | None, lang: str = "en") -> AII
         output_format=Briefing,
     )
     _check(response)
-    item = AIInsight(record_type="briefing", record_id=user_id or 0, payload=response.parsed_output.model_dump(), model=model_label())
+    item = AIInsight(record_type="briefing", record_id=user_id or 0, payload={**response.parsed_output.model_dump(), "lang": lang}, model=model_label())
     db.add(item)
     return item

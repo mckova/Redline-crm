@@ -1,8 +1,9 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 import { Link } from "react-router-dom";
+import { X } from "@phosphor-icons/react";
 import { fmtDate, money, type RecordType } from "../api";
-import type { Field } from "../fields";
+import { STAGES, type Field } from "../fields";
 import { useStore } from "../store";
 import { t, tv } from "../i18n";
 
@@ -30,7 +31,7 @@ export function Modal({ title, onClose, children, wide, role = "dialog" }: { tit
   return (
     <div className="overlay" onMouseDown={onClose}>
       <div ref={box} role={role} aria-modal="true" aria-labelledby={titleId} className={`modal ${wide ? "wide" : ""}`} onMouseDown={(e) => e.stopPropagation()}>
-        <div className="modal-head"><h2 id={titleId}>{title}</h2><button className="ghost icon" aria-label={t("Close")} onClick={onClose}>✕</button></div>
+        <div className="modal-head"><h2 id={titleId}>{title}</h2><button className="ghost icon" aria-label={t("Close")} onClick={onClose}><X aria-hidden="true" /></button></div>
         <div className="modal-body">{children}</div>
       </div>
     </div>
@@ -46,9 +47,9 @@ export function confirmDialog(message: string, confirmLabel = t("Delete")): Prom
     const done = (v: boolean) => { root.unmount(); host.remove(); resolve(v); };
     root.render(
       <Modal title={message} role="alertdialog" onClose={() => done(false)}>
-        <p className="muted">{t("This can't be undone from the app.")}</p>
+        <p className="soft">{t("This can't be undone from the app.")}</p>
         <div className="actions">
-          <button className="ghost" onClick={() => done(false)}>{t("Cancel")}</button>
+          <button className="ghost" onClick={() => done(false)}>{t("Keep it")}</button>
           <button className="danger solid" onClick={() => done(true)}>{confirmLabel}</button>
         </div>
       </Modal>,
@@ -56,30 +57,54 @@ export function confirmDialog(message: string, confirmLabel = t("Delete")): Prom
   });
 }
 
-export function Skeleton({ lines = 3 }: { lines?: number }) {
-  return <div className="skeleton" aria-busy="true" aria-label={t("Loading…")}>{Array.from({ length: lines }, (_, i) => <span key={i} style={{ width: `${92 - i * 14}%` }} />)}</div>;
+/** Loading placeholder shaped like the rows it stands in for. */
+export function Skeleton({ lines = 3, label }: { lines?: number; label?: string }) {
+  return <div className="skeleton" role="status" aria-label={label ?? t("Loading…")}>{Array.from({ length: lines }, (_, i) => <span key={i} style={{ width: `${92 - (i % 4) * 14}%` }} />)}</div>;
 }
 
-export const StageBadge = ({ stage }: { stage: string }) => <span className={`badge stage-${stage}`}>{tv(stage)}</span>;
-export const Badge = ({ children, tone = "gray" }: { children: ReactNode; tone?: string }) => <span className={`badge tone-${tone}`}>{children}</span>;
-
-export function GradeBadge({ grade, score }: { grade: string; score: number }) {
-  const tone = { A: "green", B: "blue", C: "amber", D: "gray" }[grade] ?? "gray";
-  return <span className={`badge tone-${tone}`} title={`score ${score}/100`}>{grade} · {score}</span>;
+/** A failed load says what failed and offers the retry; it is never shown as an empty state. */
+export function LoadError({ what, onRetry }: { what: string; onRetry: () => void }) {
+  return (
+    <div className="load-error" role="alert">
+      <p>{t("Couldn't load {x}. The server didn't answer.", { x: what })}</p>
+      <button onClick={onRetry}>{t("Try again")}</button>
+    </div>
+  );
 }
+
+const OPEN = STAGES.filter((s) => s !== "LOST");
+/** The stage meter: five ticks that fill as a deal advances, always with the stage name beside them. */
+export function Stage({ stage }: { stage: string }) {
+  const at = OPEN.indexOf(stage);
+  return (
+    <span className={`stage ${stage}`}>
+      <span className="meter" aria-hidden="true">{OPEN.map((s, i) => <i key={s} className={stage !== "LOST" && i <= at ? "on" : ""} />)}</span>
+      {tv(stage)}
+    </span>
+  );
+}
+
+export function Grade({ grade, score }: { grade: string; score: number }) {
+  return <span className={`grade ${grade}`} aria-label={t("Grade {g}, score {n} of 100", { g: grade, n: score })}><b aria-hidden="true">{grade}</b><span className="fig" aria-hidden="true">{score}</span></span>;
+}
+
+export const Tag = ({ children, tone }: { children: ReactNode; tone?: "ok" | "warn" | "loss" }) => <span className={`tag ${tone ?? ""}`}>{children}</span>;
+
+export const Unset = () => <span className="unset" aria-label={t("Not set")}>-</span>;
 
 export function FieldValue({ field, record }: { field: Field; record: Record<string, any> }) {
   const { refName } = useStore();
   const v = record[field.key];
-  if (v == null || v === "") return <span className="muted">—</span>;
+  if (v == null || v === "") return <Unset />;
   switch (field.kind) {
-    case "money": return <>{money(v, record.currency)}</>;
-    case "date": return <>{fmtDate(v)}</>;
+    case "money": return <span className="fig">{money(v, record.currency)}</span>;
+    case "date": return <span className="tnum">{fmtDate(v)}</span>;
+    case "number": return <span className="fig">{Number(v).toLocaleString()}</span>;
     case "ref":
       if (field.ref === "user") return <>{refName("user", v)}</>;
       return <Link to={`/${field.ref}/${v}`} onClick={(e) => e.stopPropagation()}>{refName(field.ref as RecordType, v)}</Link>;
     case "select":
-      return field.key === "stage" ? <StageBadge stage={v} /> : <Badge>{tv(String(v))}</Badge>;
+      return field.key === "stage" ? <Stage stage={v} /> : <span className="cap">{tv(String(v))}</span>;
     case "email": return <a href={`mailto:${v}`} onClick={(e) => e.stopPropagation()}>{v}</a>;
     case "textarea": return <span className="clip">{v}</span>;
     default: return <>{String(v)}</>;
@@ -90,6 +115,12 @@ export function Empty({ children }: { children: ReactNode }) {
   return <div className="empty">{children}</div>;
 }
 
-export function Bar({ value, max, tone = "indigo" }: { value: number; max: number; tone?: string }) {
-  return <div className="bar"><div className={`bar-fill fill-${tone}`} style={{ width: `${max ? Math.max(2, (value / max) * 100) : 0}%` }} /></div>;
+export function Bar({ value, max, quiet }: { value: number; max: number; quiet?: boolean }) {
+  return <div className="bar" aria-hidden="true"><div className={`bar-fill ${quiet ? "quiet" : ""}`} style={{ width: `${max ? Math.max(1, (value / max) * 100) : 0}%` }} /></div>;
+}
+
+/** Small-type attribution for anything the assistant wrote. */
+export function Provenance({ model, when }: { model: string; when?: string }) {
+  const who = model.startsWith("demo") ? t("Drafted by the offline demo assistant") : t("Drafted by {m}", { m: model });
+  return <span className="provenance">{who}{when && <> · {when}</>}</span>;
 }
