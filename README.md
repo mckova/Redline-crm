@@ -106,6 +106,14 @@ frontend/src/     React app: product page, Today, pipeline, lists, record page, 
 
 ## Run it
 
+**One command** (needs Node 20+ and Python 3.11+)
+
+```bash
+./run.sh        # builds the frontend, installs the backend, serves on http://localhost:8000
+```
+
+Sign in with `admin@redline.dev` / `demo1234`. With no API key the assistant runs in the offline demo mode. Set `REDLINE_DATABASE_URL` for PostgreSQL.
+
 **Docker**
 
 ```bash
