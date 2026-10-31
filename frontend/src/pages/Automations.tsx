@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ago, api } from "../api";
-import { Badge, Modal } from "../components/ui";
+import { Badge, Modal, confirmDialog } from "../components/ui";
+import { t, tv } from "../i18n";
 
 type Cond = { field: string; op: string; value?: any };
 type Action = { type: string; params: Record<string, any> };
@@ -10,8 +11,8 @@ type Meta = { triggers: string[]; operators: string[]; actions: string[] };
 
 const describeCond = (c: Cond) => `${c.field} ${c.op.replace("_", " ")}${["is_empty", "not_empty", "changed"].includes(c.op) ? "" : ` "${c.value}"`}`;
 const describeAction = (a: Action) =>
-  a.type === "create_task" ? `create task “${a.params.title}”${a.params.due_in_days != null ? ` due in ${a.params.due_in_days}d` : ""}`
-  : a.type === "add_note" ? `add note “${a.params.title}”`
+  a.type === "create_task" ? `${t("Task")}: “${a.params.title}”${a.params.due_in_days != null ? ` · ${t("{n}d", { n: a.params.due_in_days })}` : ""}`
+  : a.type === "add_note" ? `${t("Note")}: “${a.params.title}”`
   : a.type === "ai_agent" ? `✦ AI: ${a.params.instructions}`
   : a.type === "update_record" ? `set ${Object.entries(a.params.values ?? {}).map(([k, v]) => `${k}=${v}`).join(", ")}`
   : `POST ${a.params.url}`;
@@ -43,22 +44,22 @@ export default function Automations() {
   useEffect(() => { load(); api("/meta").then((m) => setMeta(m.automation)); }, []);
 
   async function toggle(r: Rule) { await api(`/automations/${r.id}`, { method: "PATCH", body: { enabled: !r.enabled } }); load(); }
-  async function remove(r: Rule) { if (window.confirm(`Delete “${r.name}”?`)) { await api(`/automations/${r.id}`, { method: "DELETE" }); load(); } }
+  async function remove(r: Rule) { if (await confirmDialog(t("Delete {x}?", { x: r.name }))) { await api(`/automations/${r.id}`, { method: "DELETE" }); load(); } }
 
   return (
     <div className="page">
       <div className="row-between">
-        <h1>Automations</h1>
-        <button className="primary" onClick={() => setEditing({ name: "", trigger_event: "deal.updated", conditions: [], actions: [{ type: "create_task", params: { title: "Follow up on {{record.name}}", due_in_days: 2 } }] })}>+ New rule</button>
+        <h1>{t("Automations")}</h1>
+        <button className="primary" onClick={() => setEditing({ name: "", trigger_event: "deal.updated", conditions: [], actions: [{ type: "create_task", params: { title: "Follow up on {{record.name}}", due_in_days: 2 } }] })}>{t("+ New rule")}</button>
       </div>
-      <p className="muted">When something happens to a record → check conditions → run actions. Use <code>{"{{record.field}}"}</code> in text.</p>
+      <p className="muted">{t("When something happens to a record → check conditions → run actions. Use {{record.field}} in text.")}</p>
       <form className="card ai-describe" onSubmit={(e) => { e.preventDefault(); if (nl.trim()) void draft(); }}>
-        <b>✦ Describe a rule in your own words</b>
+        <label htmlFor="nl-rule"><b>{t("✦ Describe a rule in your own words")}</b></label>
         <div className="row builder-row">
-          <input value={nl} onChange={(e) => setNl(e.target.value)} placeholder="e.g. When a deal over 100K is created, have AI write a brief for the CEO and add a call task for tomorrow" />
-          <button className="primary" disabled={drafting || !nl.trim()}>{drafting ? "Drafting…" : "Draft rule"}</button>
+          <input id="nl-rule" value={nl} onChange={(e) => setNl(e.target.value)} placeholder={t("e.g. When a deal over 100K is created, have AI write a brief for the CEO and add a call task for tomorrow")} />
+          <button className="primary" disabled={drafting || !nl.trim()}>{drafting ? t("Drafting…") : t("Draft rule")}</button>
         </div>
-        {draftNote && <div className="muted small">{draftNote}</div>}
+        {draftNote && <div className="muted small" role="status">{draftNote}</div>}
       </form>
       <div className="rules">
         {rules.map((r) => (
@@ -66,9 +67,9 @@ export default function Automations() {
             <div className="row-between">
               <b>{r.name}</b>
               <div className="row">
-                <label className="switch"><input type="checkbox" checked={r.enabled} onChange={() => toggle(r)} /><span /></label>
-                <button className="ghost" onClick={() => setEditing(r)}>Edit</button>
-                <button className="ghost" onClick={() => remove(r)}>✕</button>
+                <label className="switch"><input type="checkbox" role="switch" aria-label={r.name} checked={r.enabled} onChange={() => toggle(r)} /><span /></label>
+                <button className="ghost" onClick={() => setEditing(r)}>{t("Edit")}</button>
+                <button className="ghost" aria-label={t("Delete")} onClick={() => remove(r)}>✕</button>
               </div>
             </div>
             <div className="flow">
@@ -76,41 +77,41 @@ export default function Automations() {
               {r.conditions.map((c, i) => <span key={i} className="node cond">IF {describeCond(c)}</span>)}
               {r.actions.map((a, i) => <span key={i} className="node act">THEN {describeAction(a)}</span>)}
             </div>
-            <div className="muted small">{r.run_count} runs{r.last_run_at && ` · last ${ago(r.last_run_at)}`}</div>
+            <div className="muted small">{t("{n} runs", { n: r.run_count })}{r.last_run_at && ` · ${t("last")} ${ago(r.last_run_at)}`}</div>
           </div>
         ))}
       </div>
-      <h3>Run log</h3>
+      <h3>{t("Run log")}</h3>
       <div className="card flush">
         <table className="grid">
-          <thead><tr><th>When</th><th>Rule</th><th>Record</th><th>Status</th><th>Output</th></tr></thead>
+          <thead><tr><th>{t("When")}</th><th>{t("Rule")}</th><th>{t("Record")}</th><th>{t("Status")}</th><th>{t("Output")}</th></tr></thead>
           <tbody>
             {runs.map((r) => (
               <tr key={r.id}>
                 <td className="muted">{ago(r.created_at)}</td>
                 <td>{r.automation}</td>
                 <td><Link to={`/${r.record.type}/${r.record.id}`}>{r.record.name}</Link></td>
-                <td><Badge tone={r.status === "success" ? "green" : "red"}>{r.status}</Badge></td>
+                <td><Badge tone={r.status === "success" ? "green" : "red"}>{tv(r.status)}</Badge></td>
                 <td className="small mono">{r.output.map((o: any) => o.error ? `✗ ${o.action}: ${o.error}` : `✓ ${o.action}${o.dry_run ? " (dry-run)" : ""}`).join("  ")}</td>
               </tr>
             ))}
-            {runs.length === 0 && <tr><td colSpan={5} className="muted">No runs yet — move a deal to “proposal” to see one.</td></tr>}
+            {runs.length === 0 && <tr><td colSpan={5} className="muted">{t("No runs yet — move a deal to “proposal” to see one.")}</td></tr>}
           </tbody>
         </table>
       </div>
       {jobs.length > 0 && (
         <>
-          <h3 style={{ marginTop: 24 }}>✦ AI steps</h3>
+          <h3 className="section-gap">{t("✦ AI steps")}</h3>
           <div className="card flush">
             <table className="grid">
-              <thead><tr><th>When</th><th>Record</th><th>Instructions</th><th>Status</th><th>Result</th></tr></thead>
+              <thead><tr><th>{t("When")}</th><th>{t("Record")}</th><th>{t("Instructions")}</th><th>{t("Status")}</th><th>{t("Result")}</th></tr></thead>
               <tbody>
                 {jobs.map((j) => (
                   <tr key={j.id}>
                     <td className="muted">{ago(j.created_at)}</td>
                     <td><Link to={`/${j.record.type}/${j.record.id}`}>{j.record.type} #{j.record.id}</Link></td>
-                    <td className="small">{j.instructions}</td>
-                    <td><Badge tone={j.status === "done" ? "green" : j.status === "failed" ? "red" : "amber"}>{j.status}</Badge></td>
+                    <td className="small">{j.kind === "insight" ? t("✦ AI analysis") : j.instructions}</td>
+                    <td><Badge tone={j.status === "done" ? "green" : j.status === "failed" ? "red" : "amber"}>{tv(j.status)}</Badge></td>
                     <td className="small">{j.output?.summary || j.output?.error || "—"}</td>
                   </tr>
                 ))}
@@ -143,24 +144,24 @@ function RuleEditor({ rule, meta, onClose, onSaved }: { rule: Partial<Rule>; met
   }
 
   return (
-    <Modal title={r.id ? "Edit rule" : "New rule"} onClose={onClose} wide>
+    <Modal title={r.id ? t("Edit rule") : t("New rule")} onClose={onClose} wide>
       <div className="form">
-        <label className="span2"><span>Name</span><input value={r.name} onChange={(e) => setR({ ...r, name: e.target.value })} /></label>
-        <label className="span2"><span>When</span>
+        <label className="span2"><span>{t("Name")}</span><input value={r.name} onChange={(e) => setR({ ...r, name: e.target.value })} /></label>
+        <label className="span2"><span>{t("When")}</span>
           <select value={r.trigger_event} onChange={(e) => setR({ ...r, trigger_event: e.target.value })}>{meta.triggers.map((t) => <option key={t}>{t}</option>)}</select>
         </label>
       </div>
-      <h4>Conditions <span className="muted small">(all must match)</span></h4>
+      <h4>{t("Conditions")} <span className="muted small">{t("(all must match)")}</span></h4>
       {conds.map((c, i) => (
         <div key={i} className="row builder-row">
           <input placeholder="field (e.g. stage)" value={c.field} onChange={(e) => setCond(i, { field: e.target.value })} />
           <select value={c.op} onChange={(e) => setCond(i, { op: e.target.value })}>{meta.operators.map((o) => <option key={o}>{o}</option>)}</select>
           <input placeholder="value" value={c.value ?? ""} onChange={(e) => setCond(i, { value: e.target.value })} />
-          <button className="ghost" onClick={() => setR({ ...r, conditions: conds.filter((_, j) => j !== i) })}>✕</button>
+          <button className="ghost" aria-label={t("Delete")} onClick={() => setR({ ...r, conditions: conds.filter((_, j) => j !== i) })}>✕</button>
         </div>
       ))}
-      <button className="ghost" onClick={() => setR({ ...r, conditions: [...conds, { field: "stage", op: "changed_to", value: "" }] })}>+ condition</button>
-      <h4>Actions</h4>
+      <button className="ghost" onClick={() => setR({ ...r, conditions: [...conds, { field: "stage", op: "changed_to", value: "" }] })}>{t("+ condition")}</button>
+      <h4>{t("Actions")}</h4>
       {acts.map((a, i) => (
         <div key={i} className="row builder-row">
           <select value={a.type} onChange={(e) => setAct(i, { type: e.target.value, params: {} })}>{meta.actions.map((o) => <option key={o}>{o}</option>)}</select>
@@ -173,12 +174,12 @@ function RuleEditor({ rule, meta, onClose, onSaved }: { rule: Partial<Rule>; met
             <input placeholder="field=value, field2=value" value={Object.entries(a.params.values ?? {}).map(([k, v]) => `${k}=${v}`).join(", ")}
               onChange={(e) => setParam(i, "values", Object.fromEntries(e.target.value.split(",").map((p) => p.split("=").map((s) => s.trim())).filter((p) => p[0])))} />
           )}
-          <button className="ghost" onClick={() => setR({ ...r, actions: acts.filter((_, j) => j !== i) })}>✕</button>
+          <button className="ghost" aria-label={t("Delete")} onClick={() => setR({ ...r, actions: acts.filter((_, j) => j !== i) })}>✕</button>
         </div>
       ))}
-      <button className="ghost" onClick={() => setR({ ...r, actions: [...acts, { type: "create_task", params: { title: "" } }] })}>+ action</button>
-      {err && <div className="error">{err}</div>}
-      <div className="actions"><button className="ghost" onClick={onClose}>Cancel</button><button className="primary" onClick={save}>Save rule</button></div>
+      <button className="ghost" onClick={() => setR({ ...r, actions: [...acts, { type: "create_task", params: { title: "" } }] })}>{t("+ action")}</button>
+      {err && <div className="error" role="alert">{err}</div>}
+      <div className="actions"><button className="ghost" onClick={onClose}>{t("Cancel")}</button><button className="primary" onClick={save}>{t("Save rule")}</button></div>
     </Modal>
   );
 }

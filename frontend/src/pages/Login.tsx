@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { api, auth } from "../api";
 import { useStore } from "../store";
+import { lang, setLang, t } from "../i18n";
 
-export default function Login() {
+export default function Login({ embedded = false }: { embedded?: boolean }) {
   const { setUser } = useStore();
   const [email, setEmail] = useState("admin@kesher.dev");
   const [password, setPassword] = useState("demo1234");
@@ -20,15 +21,16 @@ export default function Login() {
   }
 
   return (
-    <div className="login">
+    <div className={embedded ? "login-embedded" : "login"}>
       <form onSubmit={submit} className="card login-card">
-        <div className="logo big">◆ KESHER</div>
-        <p className="muted">Relationship CRM · demo workspace</p>
-        <label><span>Email</span><input value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-        <label><span>Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></label>
-        {error && <div className="error">{error}</div>}
-        <button className="primary">Sign in</button>
-        <p className="muted small">Demo users: admin@ / dor@ / noa@kesher.dev · password demo1234</p>
+        <div className="logo big"><span className="logo-mark" aria-hidden="true" />KESHER</div>
+        <p className="muted">{t("Relationship CRM · demo workspace")}</p>
+        <label><span>{t("Email")}</span><input type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+        <label><span>{t("Password")}</span><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+        {error && <div className="error" role="alert">{error}</div>}
+        <button className="primary">{t("Sign in")}</button>
+        {!embedded && <button type="button" className="ghost small" onClick={() => setLang(lang === "he" ? "en" : "he")}>{lang === "he" ? "English" : "עברית"}</button>}
+        <p className="muted small">{t("Demo users: admin@ / dor@ / noa@kesher.dev · password demo1234")}</p>
       </form>
     </div>
   );

@@ -1,70 +1,83 @@
 # KESHER CRM
 
-**An AI-native sales CRM. A Claude-powered copilot works alongside the team:
-it reads the CRM, turns call notes into updates, and proposes changes that run
-only after you approve them. Under it is an event-driven core where every
-change lands on a timeline, can trigger automations, and feeds lead scoring
-and deal-health signals.**
+[![CI](https://github.com/mckova/kesher-crm/actions/workflows/ci.yml/badge.svg)](https://github.com/mckova/kesher-crm/actions/workflows/ci.yml)
 
-> קשר (*kesher*) — Hebrew for "connection".
+**An AI-native sales CRM. Paste a call, approve the updates. Claude reads the
+whole pipeline, briefs you every morning, analyzes new leads before you open
+them, and proposes every change, which runs only after you approve it. Under it
+is an event-driven core where every change lands on a timeline, can trigger
+automations, and feeds lead scoring and deal-health signals. English and
+Hebrew (RTL).**
 
-![Dashboard](docs/screenshots/01-dashboard.png)
+> קשר (*kesher*): Hebrew for "connection". [עברית](README.he.md)
 
-| Pipeline (drag & drop) | Deal with timeline and health |
+![Product page](docs/screenshots/01-landing.png)
+
+## AI at the core (Claude Opus 5.5)
+
+![Daily briefing](docs/screenshots/03-dashboard-briefing.png)
+
+| Copilot proposes, you approve | Applied, audited, on the timeline |
 |---|---|
-| ![Pipeline](docs/screenshots/02-pipeline.png) | ![Deal](docs/screenshots/05-deal-detail.png) |
-| **Explainable lead score** | **Automation builder + run log** |
-| ![Lead](docs/screenshots/04-lead-detail.png) | ![Automations](docs/screenshots/06-automations.png) |
+| ![Copilot approval](docs/screenshots/04-copilot-approval.png) | ![Copilot applied](docs/screenshots/05-copilot-applied.png) |
 
-## AI features (Claude Opus 5.5)
+- **Today's briefing**: Claude reads a snapshot of the pipeline (deal health, the largest open deals, overdue tasks, hot leads, forecast) and returns a headline and 3-5 focus items, each linked to the record it's about.
+- **Copilot**: a chat agent with tools over the whole CRM. It searches, lists, reads records with their timelines and checks the pipeline on its own. Every write (create or update records, tasks, notes, lead conversion) pauses as a proposal you approve or reject. Paste call notes and it proposes the stage, amount, close date, a call note and a follow-up task. Opened from a record, it starts with that record's context.
+- **Proactive analysis**: when a lead is created or a deal changes stage, an insight job is queued in the background, so the read-out is waiting when a rep opens the record.
+- **AI insight on every record**: a summary, momentum, risks grounded in the timeline, next actions that become tasks in one click, and a follow-up email draft, in English or Hebrew.
+- **Automations in plain language**: describe a rule in English or Hebrew, Claude drafts the trigger, conditions and actions, and the engine validates the draft before you save it.
+- **AI automation step** (`ai_agent`): a rule can hand a record to Claude with instructions ("write a negotiation brief and a review task"). It runs on a background worker, so saving a record never waits on the model.
+- **AI in the audit trail**: everything the AI changes shows on the timeline with a ✦ AI badge and a field-level diff.
+- **Model setup**: `claude-opus-5-5` with adaptive thinking and a set `effort` per feature (`medium` for the copilot, insights and briefing, `low` for drafting and automation steps). Strict tool schemas, structured outputs via Pydantic, server-side refusal fallbacks (`fallbacks: "default"`) and prompt caching.
 
-| Copilot proposes, you approve | Changes applied and audited |
-|---|---|
-| ![Copilot approval](docs/screenshots/08-copilot-approval.png) | ![Copilot applied](docs/screenshots/09-copilot-applied.png) |
-
-- **Copilot**: a chat agent with tools over the whole CRM. It can search, list, read records with their timelines, check the pipeline, and create or update records, tasks and notes, or convert leads. Reads run on their own. Every write pauses as a proposal that you approve or reject. Paste call notes and it proposes the stage change, amount, close date, a call note and a follow-up task. Opened from a record, the conversation starts with that record's context.
-- **AI insight on every record**: a summary, momentum, risks grounded in the timeline, next actions you can turn into tasks in one click, and a follow-up email draft.
-- **Automations in plain language**: describe a rule in English or Hebrew, and Claude drafts the trigger, conditions and actions. The engine validates the draft and you review it before saving.
-- **AI automation step** (`ai_agent`): a rule can hand a record to Claude with instructions, such as "write a negotiation brief and a review task". These steps run on a background worker, so saving a record never waits for the model.
-- **AI in the audit trail**: anything the AI changes shows on the timeline with a ✦ AI badge.
-- **Model setup**: `claude-opus-5-5` with adaptive thinking and a set `effort` per feature (`medium` for the copilot and insights, `low` for drafting and automation steps). Tool schemas are strict, insights and rule drafts use structured outputs, refusals fall back on the server (`fallbacks: "default"`), and prompts are cached. Without an `ANTHROPIC_API_KEY` the CRM still works fully and the AI panels explain how to turn the features on.
-
-> Screenshots of the AI panels were taken with a scripted stand-in for the model (no API key in the build environment). The request code and its shape are covered by `tests/test_ai.py`.
-
-![AI rule draft](docs/screenshots/10-ai-rule-draft.png)
+**Try it without an API key.** With no `ANTHROPIC_API_KEY`, KESHER runs its AI features in *demo mode*: an offline stand-in that speaks the same API shape and drives the real agent loop, approval cards, background jobs and structured outputs, using simple rules over your CRM data. Everything it produces is labelled **Demo AI**. Set a key and the same screens use Claude. The screenshots here were taken in demo mode.
 
 ## Features
 
+| Pipeline (drag and drop) | Explainable lead score |
+|---|---|
+| ![Pipeline](docs/screenshots/07-pipeline.png) | ![Lead](docs/screenshots/08-lead.png) |
+| **Deal with AI insight and timeline** | **Rule drafted from plain language** |
+| ![Deal](docs/screenshots/06-deal-insight.png) | ![Rule draft](docs/screenshots/09-ai-rule-draft.png) |
+
 - **Companies, people, leads, deals, tasks, notes**: full CRUD, soft delete, sort and filter, plus global search (⌘K).
-- **Kanban pipeline**: drag-and-drop between stages and within a column. Ordering uses fractional positions, so a move is one write.
-- **Timeline on every record**: who changed what, with a field-level diff (`stage: NEW → PROPOSAL`). Task and note events also show up on every record they're linked to.
-- **Lead conversion**: one click turns a lead into a Company, a Contact and a Deal. It reuses an existing company, and the lead's notes and tasks move to the new contact.
-- **Explainable lead scoring (0–100, grades A–D)**: each point comes with a reason. The score is recomputed automatically on every edit.
-- **Deal health**: flags stale deals, a passed close date, a missing contact, no next step, or a deal stuck in one stage. Each flag comes with a concrete next action, and the dashboard ranks the deals that need attention.
-- **No-code automations**: rules of the form *when* `deal.updated` *if* `stage changed_to PROPOSAL` *then* create a task, add a note, update a field, or call a webhook. Text fields support `{{record.field}}` templates. There's a run log, loop protection, and per-action error isolation.
-- **Dashboard**: open pipeline, weighted forecast, win rate, average sales cycle, stage funnel, lead-source conversion, and a 14-day activity chart.
-- **Auth**: JWT bearer tokens, PBKDF2 password hashing, and admin/sales roles.
+- **Kanban pipeline**: drag and drop between stages and within a column. Fractional positions make every move one write.
+- **Timeline on every record**: who changed what, with a field-level diff (`stage: NEW → PROPOSAL`). Task and note events also appear on every record they're linked to.
+- **Lead conversion**: one click turns a lead into a company, a contact and a deal, reusing an existing company and moving the lead's notes and tasks.
+- **Explainable lead scoring (0–100, grades A–D)**: every point comes with a reason, recomputed on every edit.
+- **Deal health**: flags stale deals, a passed close date, a missing contact, no next step, or a deal stuck in one stage, each with a concrete next action.
+- **No-code automations**: *when* `deal.updated` *if* `stage changed_to PROPOSAL` *then* create a task, add a note, update a field, call a webhook or run an AI step. Run log, loop protection and per-action error isolation.
+- **Dashboard**: open pipeline, weighted forecast, win rate, sales cycle, stage funnel, lead-source conversion and a 14-day activity chart.
+- **Hebrew and English**: a full RTL interface from one stylesheet built on logical properties. Switch from the sidebar or the product page.
+- **Product page**: a scroll-driven page that explains the product in five acts and ends in the sign-in form, with a static layout for reduced motion and a separate mobile composition.
+- **Accessible by default**: focus-trapped dialogs, alert dialogs for destructive actions, keyboard-reachable rows and sort controls, labelled icon buttons, live regions for the copilot and skeleton loading.
+- **Auth**: JWT bearer tokens, PBKDF2 password hashing, admin and sales roles.
+
+| Hebrew, right to left | Mobile |
+|---|---|
+| ![Hebrew](docs/screenshots/10-hebrew-rtl.png) | <img src="docs/screenshots/11-mobile.png" width="260" alt="Mobile product page"> |
 
 ## Architecture
 
 ```
-React (Vite, TS)  ──REST──►  FastAPI
-                               │
-                     services.py  ← the single write path
-                               │ emits RecordEvent(name, record, actor, diff)
-              ┌────────────────┼────────────────┐
-         timeline.py       scoring.py      automations.py
-     (activity + diff)   (lead score)   (trigger → if → then)
-                               │
-                     SQLAlchemy 2 · SQLite / Postgres
+React (Vite, TS, en/he)  ──REST──►  FastAPI
+                                      │
+                            services.py  ← the single write path
+                                      │ emits RecordEvent(name, record, actor, diff)
+       ┌──────────────────┬───────────┼──────────────┬──────────────────────┐
+  timeline.py        scoring.py   automations.py   ai.py (proactive insight jobs)
+ (activity + diff)  (lead score) (trigger → if → then, ai_agent step)
+                                      │
+                      AI worker thread ── Claude Opus 5.5 (or demo client)
+                                      │
+                         SQLAlchemy 2 · SQLite / Postgres
 ```
 
-Every mutation, whether it comes from the UI, the API, an automation or the
-seed import, goes through `services.py`. That module records the actor and
-the diff, then emits an event. The timeline, scoring and automations are
-independent subscribers, so adding a new reaction to data changes (Slack
-alerts, analytics, search indexing) is one more listener. Design decisions
-are written up in [docs/design.md](docs/design.md).
+Every mutation, whether it comes from the UI, the API, an automation, the AI or
+the seed import, goes through `services.py`. That module records the actor and
+the diff, then emits an event. The timeline, scoring, automations and the AI's
+proactive analysis are independent subscribers. Design decisions are written up
+in [docs/design.md](docs/design.md).
 
 ```
 backend/app/
@@ -74,12 +87,13 @@ backend/app/
   scoring.py      explainable lead scoring
   automations.py  rule engine (conditions, actions, templates, loop guard)
   insights.py     deal health + dashboard aggregates
-  ai.py           Claude copilot agent, insights, rule drafting, background AI steps
+  ai.py           copilot agent, insights, daily briefing, rule drafting, background AI jobs
+  demo_ai.py      offline stand-in used when no API key is set
   ai_api.py       /api/ai/* endpoints
   api.py          generic /api/{type} router + convert / move / pipeline / automations
   seed.py         deterministic demo workspace
-backend/tests/    24 end-to-end API tests (incl. AI with a scripted model client)
-frontend/src/     React app: dashboard, pipeline, lists, record page, automation builder
+backend/tests/    30 end-to-end API tests (CRM, AI with a scripted client, demo mode)
+frontend/src/     React app: product page, dashboard, pipeline, lists, record page, automations, copilot
 ```
 
 ## Run it
@@ -89,6 +103,7 @@ frontend/src/     React app: dashboard, pipeline, lists, record page, automation
 ```bash
 docker compose up --build
 # http://localhost:8000  ·  admin@kesher.dev / demo1234
+# AI runs in demo mode; export ANTHROPIC_API_KEY first to use Claude
 ```
 
 **Locally**
@@ -101,16 +116,18 @@ uvicorn app.main:app --reload            # serves API + built frontend on :8000
 
 For frontend hot reload, run `npm run dev` in `frontend/`. It proxies `/api` to `:8000`.
 
-On first start the app seeds a demo workspace: 12 companies, about 25 people, 30 deals, 20 leads, tasks, notes and 3 automation rules. Set `KESHER_SEED=off` to start empty.
+On first start the app seeds a demo workspace: 12 companies, about 25 people, 30 deals, 20 leads, tasks, notes and automation rules. Set `KESHER_SEED=off` to start empty.
 
 | Env var | Default | Purpose |
 |---|---|---|
+| `ANTHROPIC_API_KEY` | – | Turns on Claude for the copilot, insights, briefing, rule drafting and AI steps |
+| `KESHER_AI` | `auto` | `auto` (Claude with a key, demo without), `on`, `demo` or `off` |
+| `KESHER_AI_MODEL` | `claude-opus-5-5` | Claude model for all AI features |
+| `KESHER_AI_AUTO_INSIGHTS` | `on` | Background analysis of new leads and stage changes |
 | `KESHER_DATABASE_URL` | `sqlite:///./kesher.db` | Any SQLAlchemy URL (e.g. Postgres) |
 | `KESHER_SECRET` | dev value | JWT signing key: **set in production** |
 | `KESHER_WEBHOOKS` | `off` | `on` to actually POST webhook actions (otherwise dry-run, logged) |
 | `KESHER_SEED` | `on` | Seed demo data on an empty DB |
-| `ANTHROPIC_API_KEY` | – | Enables Copilot, insights, rule drafting and AI automation steps |
-| `KESHER_AI_MODEL` | `claude-opus-5-5` | Claude model for all AI features |
 
 ## Tests
 
@@ -118,7 +135,7 @@ On first start the app seeds a demo workspace: 12 companies, about 25 people, 30
 cd backend && python -m pytest -q
 ```
 
-The tests cover CRUD and soft delete, timeline diffs, linked-record fan-out, kanban reordering, scoring, lead conversion (including moving notes), automations (happy path, loop protection, failing-action isolation, rule validation), dashboard math, search and seeding.
+30 tests cover CRUD and soft delete, timeline diffs, linked-record fan-out, kanban reordering, scoring, lead conversion, automations (happy path, loop protection, failing-action isolation, validation), dashboard math, search and seeding; the AI layer with a scripted model client (tool loop, approvals and rejections, structured outputs, refusals, background steps, strict tool schemas); and demo mode end to end (copilot in English and Hebrew, insight, briefing, rule drafting, background analysis). CI runs the tests and the frontend build on every push.
 
 ## API sketch
 
@@ -132,8 +149,10 @@ The tests cover CRUD and soft delete, timeline diffs, linked-record fan-out, kan
 | `POST` | `/api/leads/{id}/convert` | lead → company + contact + deal |
 | `GET/POST/PATCH/DELETE` | `/api/automations` · `GET /api/automations/runs` | rules and run log |
 | `GET` | `/api/dashboard` · `/api/search?q=` | analytics, global search |
-| `POST` | `/api/ai/threads` · `/api/ai/threads/{id}/messages` · `/resolve` | copilot conversation, approve/reject proposals |
-| `POST` | `/api/ai/insights/{type}/{id}` · `/api/ai/automation-draft` | AI insight, rule from plain language |
+| `GET` | `/api/ai/status` | `{enabled, mode, model}` |
+| `POST` | `/api/ai/threads` · `/api/ai/threads/{id}/messages` · `/resolve` | copilot conversation, approve or reject proposals |
+| `GET/POST` | `/api/ai/briefing?lang=` · `/api/ai/insights/{type}/{id}?lang=` | daily briefing, record insight |
+| `POST` | `/api/ai/automation-draft` · `GET /api/ai/jobs` | rule from plain language, background AI jobs |
 
 Interactive docs: `http://localhost:8000/docs`.
 

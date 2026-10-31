@@ -50,8 +50,27 @@ logged while the rest still run) and dry-run webhooks by default.
   schema, validated by the engine before the user saves it.
 * **AI automation step** (`ai_agent`): queued as a job and run by a
   background worker, so saving a record never waits on the model.
+* **Daily briefing**: one structured-output call over a pipeline snapshot
+  (KPIs, unhealthy deals, the largest open deals, overdue tasks, hot leads)
+  returns a headline, 3-5 focus items that each point at a real record id,
+  a forecast note and patterns to watch.
+* **Proactive analysis**: an event listener queues an insight job when a lead
+  is created or a deal changes stage (skipped for imports and for the AI's own
+  writes), so the read-out is already there when a rep opens the record.
+* **Language**: insights and the briefing accept `lang=he`; the copilot
+  answers in the language it's asked in.
 * Everything the AI writes carries actor source `ai` and shows on the
   timeline with a ✦ AI badge.
+
+### AI modes
+
+`KESHER_AI=auto` (default) uses Claude when `ANTHROPIC_API_KEY` is set and an
+offline demo stand-in otherwise; `on`, `demo` and `off` force a mode. The demo
+client (`demo_ai.py`) speaks the same `beta.messages.create/parse` shape, so it
+drives the real agent loop, approval cards, background jobs and structured
+outputs, with deterministic rules over the CRM data in place of the model. Its
+output is always labelled "Demo AI" in the UI, and `/api/ai/status` reports the
+mode.
 
 ## Original signals
 
@@ -59,3 +78,35 @@ logged while the rest still run) and dry-run webhooks by default.
    (`scoring.py`), recomputed on each change by an event listener.
 2. **Deal health / next best action**: stale, overdue, no contact, no next
    step, stuck in stage, each with a concrete action (`insights.py`).
+
+
+## Interface
+
+* **One design system** in `styles.css`: tokens for color (ink on paper, a
+  single teal accent), a 4px spacing scale, type ramp, elevation, a fixed
+  z-index scale and motion. No gradients; the AI is identified by the ✦ mark
+  and the accent, not by color effects.
+* **Hebrew and English** (`i18n.ts`): English strings are the keys, Hebrew
+  switches the document to RTL. All layout uses logical properties
+  (`margin-inline-start`, `inset-inline-end`, `text-align: start`), so one
+  stylesheet serves both directions. Server-side signals (deal health, score
+  reasons) carry stable codes and are translated in the client.
+* **Motion with a purpose**: buttons scale to 0.97 on press; dialogs, the
+  copilot drawer, approval cards and briefing items enter with
+  `@starting-style` (opacity + small transform, strong ease-out, under 300ms);
+  hover effects only on fine pointers; nothing animates on keyboard-driven
+  surfaces such as ⌘K search; everything is off under
+  `prefers-reduced-motion`.
+* **Accessibility**: dialogs trap and restore focus and close on Escape,
+  destructive actions use an alert dialog instead of `window.confirm`,
+  sortable headers are buttons with `aria-sort`, list rows have real links,
+  icon-only buttons are labelled, errors use `role="alert"`, the copilot
+  transcript is a polite live region, loading uses skeletons.
+* **Product page** (`Landing.tsx`): five acts with a different device each:
+  a layered hero (back grid, copy, mid cards, front notes, moving at
+  different rates with pointer and scroll), a pinned sequence where the
+  approval cards appear as you scroll, a live approve/reject interaction,
+  capability tiles revealed with `clip-path`, and the sign-in form as the
+  ending. Scroll-driven animations (`animation-timeline`) are progressive:
+  without support or with reduced motion the page is a complete static
+  composition, and mobile gets its own stacked layout.

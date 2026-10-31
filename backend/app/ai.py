@@ -36,6 +36,7 @@ from .models import (
 )
 from .services import (
     Actor,
+    subscribe,
     ValidationError,
     create_record,
     get_record,
@@ -94,6 +95,7 @@ class AIJob(Base):
     record_type: Mapped[str] = mapped_column(String(20))
     record_id: Mapped[int] = mapped_column(Integer)
     instructions: Mapped[str] = mapped_column(Text)
+    kind: Mapped[str] = mapped_column(String(20), default="agent")  # agent | insight
     status: Mapped[str] = mapped_column(String(20), default="queued")  # queued|running|done|failed
     output: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at = mapped_column(DateTime, default=utcnow)
@@ -111,19 +113,42 @@ def set_client(client: Any) -> None:
     _client_override = client
 
 
-def ai_enabled() -> bool:
+def ai_mode() -> str:
+    """``live`` (real Claude), ``demo`` (offline scripted stand-in) or ``off``.
+
+    ``KESHER_AI``: ``auto`` (default: live when an API key is present, otherwise
+    demo), ``on``/``live``, ``demo`` or ``off``.
+    """
     if _client_override is not None:
-        return True
-    if os.environ.get("KESHER_AI", "auto") == "off":
-        return False
-    return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN") or os.environ.get("KESHER_AI") == "on")
+        return "live"
+    setting = os.environ.get("KESHER_AI", "auto").lower()
+    if setting == "off":
+        return "off"
+    if setting == "demo":
+        return "demo"
+    if setting in ("on", "live") or os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"):
+        return "live"
+    return "demo"
+
+
+def ai_enabled() -> bool:
+    return ai_mode() != "off"
+
+
+def model_label() -> str:
+    return "demo mode (offline, scripted)" if ai_mode() == "demo" else MODEL
 
 
 def get_client():
     if _client_override is not None:
         return _client_override
-    if not ai_enabled():
+    mode = ai_mode()
+    if mode == "off":
         raise AIUnavailable("AI is not configured: set ANTHROPIC_API_KEY to enable KESHER's AI features.")
+    if mode == "demo":
+        from .demo_ai import DemoClient
+
+        return DemoClient()
     import anthropic
 
     return anthropic.Anthropic()
@@ -496,20 +521,23 @@ class RecordInsight(BaseModel):
 INSIGHT_SYSTEM = (
     "You are a senior B2B sales coach. Given a CRM record with its timeline, tasks, notes and computed signals, "
     "produce a crisp status, concrete risks grounded in the data, 1-3 next actions, and a short follow-up email "
-    "in the language the notes are written in (default English). Never invent facts that are not in the data."
+    "in English unless told otherwise. Never invent facts that are not in the data."
 )
 
 
-def generate_insight(db: Session, record_type: str, record_id: int) -> AIInsight:
+LANG_NOTE = {"he": "\nWrite in Hebrew.", "en": ""}
+
+
+def generate_insight(db: Session, record_type: str, record_id: int, lang: str = "en") -> AIInsight:
     ctx = record_context(db, record_type, record_id)
     response = get_client().beta.messages.parse(
         **_common("medium"),
         system=INSIGHT_SYSTEM,
-        messages=[{"role": "user", "content": f"Today is {utcnow().date().isoformat()}.\n{record_type} data:\n{json.dumps(ctx, default=str)}"}],
+        messages=[{"role": "user", "content": f"Today is {utcnow().date().isoformat()}.{LANG_NOTE.get(lang, '')}\n{record_type} data:\n{json.dumps(ctx, default=str)}"}],
         output_format=RecordInsight,
     )
     _check(response)
-    insight = AIInsight(record_type=record_type, record_id=record_id, payload=response.parsed_output.model_dump(), model=MODEL)
+    insight = AIInsight(record_type=record_type, record_id=record_id, payload=response.parsed_output.model_dump(), model=model_label())
     db.add(insight)
     return insight
 
@@ -603,6 +631,12 @@ def enqueue_ai_step(db: Session, run_record_type: str, record_id: int, instructi
 
 def run_ai_step(db: Session, job: AIJob) -> AIJob:
     job.status = "running"
+    if job.kind == "insight":
+        insight = generate_insight(db, job.record_type, job.record_id)
+        db.flush()
+        job.output = {"summary": insight.payload.get("summary", ""), "actions": [], "insight_id": insight.id}
+        job.status, job.finished_at = "done", utcnow()
+        return job
     actor = Actor(source="ai", depth=2)
     client = get_client()
     ctx = record_context(db, job.record_type, job.record_id)
@@ -665,3 +699,92 @@ def start_worker(session_factory, interval: float = 2.0) -> threading.Event:
     return stop
 
 
+
+
+# --------------------------------------------------------------------------- proactive analysis
+
+AUTO_INSIGHT = os.environ.get("KESHER_AI_AUTO_INSIGHTS", "on") != "off"
+
+
+def _wants_auto_insight(event) -> bool:
+    if event.actor.source in ("import", "ai") or not AUTO_INSIGHT or not ai_enabled():
+        return False
+    if event.name == "lead.created":
+        return True
+    return event.name == "deal.updated" and "stage" in event.diff
+
+
+@subscribe
+def _auto_insight(db: Session, event) -> None:
+    """New leads and deals that change stage get an AI read-out in the background,
+    so the analysis is already waiting when a rep opens the record."""
+    if not _wants_auto_insight(event):
+        return
+    queued = db.query(AIJob).filter(AIJob.kind == "insight", AIJob.status == "queued",
+                                    AIJob.record_type == event.record_type, AIJob.record_id == event.record.id).first()
+    if queued is None:
+        db.add(AIJob(kind="insight", record_type=event.record_type, record_id=event.record.id,
+                     instructions="Analyze this record and suggest next actions."))
+
+
+# --------------------------------------------------------------------------- daily briefing (structured output)
+
+class FocusItem(BaseModel):
+    title: str = Field(description="What to do, imperative and specific")
+    why: str = Field(description="The data point that makes this urgent")
+    record_type: Literal["deal", "lead", "task", "company", "contact"]
+    record_id: int
+
+
+class Briefing(BaseModel):
+    headline: str = Field(description="One sentence on the state of the pipeline today")
+    focus: list[FocusItem] = Field(description="3-5 highest-leverage actions for today, most important first")
+    pipeline_note: str = Field(description="One or two sentences on forecast, win rate and where value is concentrated")
+    watch_out: list[str] = Field(description="0-3 patterns worth attention (e.g. many stale deals in one stage)")
+
+
+BRIEFING_SYSTEM = (
+    "You are the sales lead's chief of staff. From the CRM snapshot, write today's briefing: what matters most "
+    "today and why, grounded only in the data given (deal health issues, overdue tasks, hot leads, the forecast). "
+    "Every focus item must point at a real record id from the snapshot. Be concrete and short."
+)
+
+
+def briefing_context(db: Session, user_id: int | None) -> dict:
+    from .insights import dashboard
+    from .models import Deal, Lead, Task
+
+    now = utcnow()
+    biggest = (db.query(Deal).filter(Deal.deleted_at.is_(None), Deal.stage.not_in(["WON", "LOST"]))
+               .order_by(Deal.amount_micros.desc()).limit(5).all())
+    dash = dashboard(db)
+    overdue = (db.query(Task).filter(Task.deleted_at.is_(None), Task.status != "DONE", Task.due_at.is_not(None), Task.due_at < now)
+               .order_by(Task.due_at).limit(10).all())
+    hot = (db.query(Lead).filter(Lead.deleted_at.is_(None), Lead.status.in_(["new", "contacted", "qualified"]))
+           .order_by(Lead.score.desc()).limit(6).all())
+    return {
+        "today": now.date().isoformat(),
+        "kpis": dash["kpis"],
+        "funnel": [{k: f[k] for k in ("stage", "count", "amount")} for f in dash["funnel"]],
+        "deals_at_risk": dash["at_risk"][:8],
+        "largest_open_deals": [{"id": d.id, "name": d.name, "stage": d.stage, "amount": d.amount_micros / 1_000_000,
+                                "close_date": d.close_date.date().isoformat() if d.close_date else None} for d in biggest],
+        "overdue_tasks": [{"id": t.id, "title": t.title, "due": t.due_at.date().isoformat()} for t in overdue],
+        "hot_leads": [{"id": lead.id, "name": lead.display_name, "company": lead.company_name, "score": lead.score,
+                       "status": lead.status, "why": [r.get("reason") if isinstance(r, dict) else r for r in (lead.score_reasons or [])][:3]}
+                      for lead in hot],
+    }
+
+
+def generate_briefing(db: Session, user_id: int | None, lang: str = "en") -> AIInsight:
+    ctx = briefing_context(db, user_id)
+    response = get_client().beta.messages.parse(
+        **_common("medium"),
+        system=BRIEFING_SYSTEM,
+        messages=[{"role": "user", "content": f"{LANG_NOTE.get(lang, '').strip()}\nCRM snapshot:\n{json.dumps(ctx, default=str)}".strip()}],
+        output_format=Briefing,
+    )
+    _check(response)
+    item = AIInsight(record_type="briefing", record_id=user_id or 0, payload=response.parsed_output.model_dump(), model=model_label())
+    db.add(item)
+    return item

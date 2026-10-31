@@ -1,3 +1,4 @@
+import { locale, t } from "./i18n";
 export type Rec = Record<string, any> & { id: number; type: string; display_name: string };
 export type RecordType = "company" | "contact" | "lead" | "deal" | "task" | "note";
 
@@ -29,14 +30,14 @@ export async function api<T = any>(path: string, opts: { method?: string; body?:
 }
 
 export const money = (micros: number | null | undefined, cur = "ILS") =>
-  new Intl.NumberFormat("en-IL", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format((micros ?? 0) / 1e6);
+  new Intl.NumberFormat(locale, { style: "currency", currency: cur, maximumFractionDigits: 0 }).format((micros ?? 0) / 1e6);
 export const compact = (n: number) =>
   new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(n);
-export const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—");
+export const fmtDate = (s?: string | null) => (s ? new Date(s).toLocaleDateString(locale, { day: "2-digit", month: "short", year: "numeric" }) : "—");
 export const ago = (s: string) => {
   const d = (Date.now() - new Date(s + (s.endsWith("Z") ? "" : "Z")).getTime()) / 1000;
-  if (d < 60) return "just now";
-  if (d < 3600) return `${Math.floor(d / 60)}m ago`;
-  if (d < 86400) return `${Math.floor(d / 3600)}h ago`;
-  return `${Math.floor(d / 86400)}d ago`;
+  if (d < 60) return t("just now");
+  if (d < 3600) return t("{n}m ago", { n: Math.floor(d / 60) });
+  if (d < 86400) return t("{n}h ago", { n: Math.floor(d / 3600) });
+  return t("{n}d ago", { n: Math.floor(d / 86400) });
 };

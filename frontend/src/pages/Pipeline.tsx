@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, compact, fmtDate, money } from "../api";
 import RecordForm from "../components/RecordForm";
 import { useStore } from "../store";
+import { t, tv } from "../i18n";
 
 type Column = { stage: string; label: string; probability: number; total: number; deals: any[] };
 
@@ -45,13 +46,13 @@ export default function Pipeline() {
   return (
     <div className="page full">
       <div className="row-between">
-        <h1>Pipeline</h1>
+        <h1>{t("Pipeline")}</h1>
         <div className="row">
-          <select value={owner} onChange={(e) => setOwner(e.target.value)}>
-            <option value="">All owners</option>
+          <select aria-label={t("Owner")} value={owner} onChange={(e) => setOwner(e.target.value)}>
+            <option value="">{t("All owners")}</option>
             {users.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
           </select>
-          <button className="primary" onClick={() => setCreating(true)}>+ New deal</button>
+          <button className="primary" onClick={() => setCreating(true)}>{t("+ New deal")}</button>
         </div>
       </div>
       <div className="board">
@@ -63,7 +64,7 @@ export default function Pipeline() {
             onDrop={() => drop(c.stage)}
           >
             <div className={`col-head stage-line-${c.stage}`}>
-              <b>{c.label}</b> <span className="muted small">{c.deals.length} · {c.probability}%</span>
+              <b>{tv(c.stage)}</b> <span className="muted small">{c.deals.length} · {c.probability}%</span>
               <div className="col-total">₪{compact(c.total)}</div>
             </div>
             {c.deals.map((d, i) => (
@@ -76,7 +77,7 @@ export default function Pipeline() {
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); const idx = c.deals.filter((x) => x.id !== drag?.id).findIndex((x) => x.id === d.id); setOver({ stage: c.stage, index: idx < 0 ? i : idx }); }}
                 onClick={() => nav(`/deal/${d.id}`)}
               >
-                <div className="deal-name">{d.name}</div>
+                <a className="deal-name" href={`/deal/${d.id}`} onClick={(e) => { e.preventDefault(); nav(`/deal/${d.id}`); }}>{d.name}</a>
                 <div className="row-between small">
                   <b>{money(d.amount_micros, d.currency)}</b>
                   <span className="muted">{fmtDate(d.close_date)}</span>

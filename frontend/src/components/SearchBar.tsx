@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
+import { t } from "../i18n";
 
 type Hit = { type: string; id: number; name: string };
 const ICON: Record<string, string> = { company: "🏢", contact: "👤", lead: "🎯", deal: "💼", task: "☑", note: "📝" };
@@ -30,7 +31,7 @@ export default function SearchBar() {
   return (
     <div className="search">
       <input
-        ref={ref} value={q} placeholder="Search everything…  ⌘K"
+        ref={ref} value={q} aria-label={t("Search everything…  ⌘K")} role="combobox" aria-expanded={open && hits.length > 0} aria-controls="search-hits" aria-autocomplete="list" placeholder={t("Search everything…  ⌘K")}
         onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 150)}
         onChange={(e) => setQ(e.target.value)}
         onKeyDown={(e) => {
@@ -40,10 +41,10 @@ export default function SearchBar() {
         }}
       />
       {open && hits.length > 0 && (
-        <ul className="search-hits">
+        <ul className="search-hits" id="search-hits" role="listbox">
           {hits.map((h, i) => (
-            <li key={`${h.type}${h.id}`} className={i === sel ? "sel" : ""} onMouseDown={() => go(h)}>
-              <span>{ICON[h.type]}</span> {h.name} <span className="muted small">{h.type}</span>
+            <li key={`${h.type}${h.id}`} role="option" aria-selected={i === sel} className={i === sel ? "sel" : ""} onMouseDown={() => go(h)}>
+              <span aria-hidden="true">{ICON[h.type]}</span> {h.name} <span className="muted small">{t(h.type)}</span>
             </li>
           ))}
         </ul>

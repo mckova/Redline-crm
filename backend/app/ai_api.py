@@ -50,7 +50,7 @@ def _guard(fn, *args, **kwargs):
 
 @router.get("/status")
 def status():
-    return {"enabled": ai.ai_enabled(), "model": ai.MODEL}
+    return {"enabled": ai.ai_enabled(), "mode": ai.ai_mode(), "model": ai.model_label()}
 
 
 class ThreadIn(BaseModel):
@@ -126,10 +126,10 @@ def latest_insight(record_type: str, record_id: int, db: Session = Depends(get_d
 
 
 @router.post("/insights/{record_type}/{record_id}")
-def make_insight(record_type: str, record_id: int, db: Session = Depends(get_db), _: User = Depends(current_user)):
+def make_insight(record_type: str, record_id: int, lang: str = "en", db: Session = Depends(get_db), _: User = Depends(current_user)):
     if record_type not in ("company", "contact", "lead", "deal") or get_record(db, record_type, record_id) is None:
         raise HTTPException(404, "record not found")
-    i = _guard(ai.generate_insight, db, record_type, record_id)
+    i = _guard(ai.generate_insight, db, record_type, record_id, lang)
     db.commit()
     return _insight_out(i)
 
@@ -155,5 +155,19 @@ def automation_draft(body: DraftIn, _: User = Depends(current_user)) -> dict[str
 @router.get("/jobs")
 def jobs(db: Session = Depends(get_db), _: User = Depends(current_user)):
     rows = db.query(ai.AIJob).order_by(ai.AIJob.id.desc()).limit(30).all()
-    return [{"id": j.id, "record": {"type": j.record_type, "id": j.record_id}, "instructions": j.instructions,
+    return [{"id": j.id, "record": {"type": j.record_type, "id": j.record_id}, "instructions": j.instructions, "kind": j.kind,
              "status": j.status, "output": j.output, "created_at": j.created_at.isoformat()} for j in rows]
+
+
+@router.get("/briefing")
+def latest_briefing(db: Session = Depends(get_db), user: User = Depends(current_user)):
+    i = (db.query(ai.AIInsight).filter(ai.AIInsight.record_type == "briefing", ai.AIInsight.record_id == user.id)
+         .order_by(ai.AIInsight.id.desc()).first())
+    return _insight_out(i)
+
+
+@router.post("/briefing")
+def make_briefing(lang: str = "en", db: Session = Depends(get_db), user: User = Depends(current_user)):
+    i = _guard(ai.generate_briefing, db, user.id, lang)
+    db.commit()
+    return _insight_out(i)

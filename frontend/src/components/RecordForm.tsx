@@ -3,6 +3,7 @@ import { api, PLURAL, type RecordType } from "../api";
 import { FIELDS, LABELS } from "../fields";
 import { useStore } from "../store";
 import { Modal } from "./ui";
+import { t, tv } from "../i18n";
 
 type Props = {
   type: RecordType;
@@ -61,15 +62,15 @@ export default function RecordForm({ type, record, defaults, targets, onClose, o
   }
 
   return (
-    <Modal title={`${record ? "Edit" : "New"} ${LABELS[type][0].toLowerCase()}`} onClose={onClose}>
+    <Modal title={`${t(record ? "Edit" : "New")} · ${t(LABELS[type][0])}`} onClose={onClose}>
       <form onSubmit={submit} className="form">
         {fields.map((f) => (
           <label key={f.key} className={f.kind === "textarea" ? "span2" : ""}>
-            <span>{f.label}{f.required && " *"}</span>
+            <span>{t(f.label)}{f.required && " *"}</span>
             {f.kind === "select" ? (
               <select value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}>
                 <option value="">—</option>
-                {f.options!.map((o) => <option key={o} value={o}>{o}</option>)}
+                {f.options!.map((o) => <option key={o} value={o}>{tv(o)}</option>)}
               </select>
             ) : f.kind === "ref" ? (
               <select value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}>
@@ -89,10 +90,10 @@ export default function RecordForm({ type, record, defaults, targets, onClose, o
             )}
           </label>
         ))}
-        {error && <div className="error span2">{error}</div>}
+        {error && <div className="error span2" role="alert">{error}</div>}
         <div className="actions span2">
-          <button type="button" className="ghost" onClick={onClose}>Cancel</button>
-          <button className="primary" disabled={busy}>{busy ? "Saving…" : "Save"}</button>
+          <button type="button" className="ghost" onClick={onClose}>{t("Cancel")}</button>
+          <button className="primary" disabled={busy}>{busy ? t("Saving…") : t("Save")}</button>
         </div>
       </form>
     </Modal>

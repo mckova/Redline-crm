@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api, PLURAL, type RecordType } from "../api";
 import RecordForm from "../components/RecordForm";
 import { Empty, FieldValue, GradeBadge } from "../components/ui";
 import { FIELDS, LABELS } from "../fields";
 import { useStore } from "../store";
+import { t, tv } from "../i18n";
 
 export default function RecordList({ type }: { type: RecordType }) {
   const [items, setItems] = useState<any[]>([]);
@@ -38,39 +39,39 @@ export default function RecordList({ type }: { type: RecordType }) {
   return (
     <div className="page">
       <div className="row-between">
-        <h1>{LABELS[type][1]} <span className="muted small">{total}</span></h1>
+        <h1>{t(LABELS[type][1])} <span className="muted small">{total}</span></h1>
         <div className="row">
           {selectField && (
-            <select value={filter} onChange={(e) => setParams(e.target.value ? { filter: e.target.value } : {})}>
-              <option value="">All {selectField.label.toLowerCase()}s</option>
-              {selectField.options!.map((o) => <option key={o} value={`${selectField.key}:${o}`}>{o}</option>)}
-              {type === "task" && user && <option value={`assignee_id:${user.id}`}>Assigned to me</option>}
+            <select aria-label={t("Status")} value={filter} onChange={(e) => setParams(e.target.value ? { filter: e.target.value } : {})}>
+              <option value="">{t("All {x}", { x: t(selectField.label) })}</option>
+              {selectField.options!.map((o) => <option key={o} value={`${selectField.key}:${o}`}>{tv(o)}</option>)}
+              {type === "task" && user && <option value={`assignee_id:${user.id}`}>{t("Assigned to me")}</option>}
             </select>
           )}
-          <input className="filter" placeholder={`Filter ${LABELS[type][1].toLowerCase()}…`} value={q} onChange={(e) => setQ(e.target.value)} />
-          <button className="primary" onClick={() => setCreating(true)}>+ New {LABELS[type][0].toLowerCase()}</button>
+          <input className="filter" aria-label={t("Filter…")} placeholder={t("Filter…")} value={q} onChange={(e) => setQ(e.target.value)} />
+          <button className="primary" onClick={() => setCreating(true)}>{t("+ New {x}", { x: t(LABELS[type][0]) })}</button>
         </div>
       </div>
       {items.length === 0 ? (
-        <Empty>No {LABELS[type][1].toLowerCase()} match.</Empty>
+        <Empty>{t("No records match.")} <button className="primary" onClick={() => setCreating(true)}>{t("+ New {x}", { x: t(LABELS[type][0]) })}</button></Empty>
       ) : (
         <div className="card flush">
           <table className="grid">
             <thead>
               <tr>
                 {type === "task" && <th style={{ width: 32 }} />}
-                <th onClick={() => toggleSort("id")}>{type === "contact" || type === "lead" ? "Name" : cols[0].label}</th>
-                {type === "lead" && <th onClick={() => toggleSort("score")}>Score {sort.endsWith("score") && (sort.startsWith("-") ? "↓" : "↑")}</th>}
+                <th><button className="th-btn" onClick={() => toggleSort("id")}>{type === "contact" || type === "lead" ? t("Name") : t(cols[0].label)}</button></th>
+                {type === "lead" && <th aria-sort={sort.endsWith("score") ? (sort.startsWith("-") ? "descending" : "ascending") : undefined}><button className="th-btn" onClick={() => toggleSort("score")}>{t("Score")} {sort.endsWith("score") && (sort.startsWith("-") ? "↓" : "↑")}</button></th>}
                 {cols.slice(type === "contact" || type === "lead" ? 0 : 1).map((f) => (
-                  <th key={f.key} onClick={() => toggleSort(f.key)}>{f.label} {sort.replace("-", "") === f.key && (sort.startsWith("-") ? "↓" : "↑")}</th>
+                  <th key={f.key} aria-sort={sort.replace("-", "") === f.key ? (sort.startsWith("-") ? "descending" : "ascending") : undefined}><button className="th-btn" onClick={() => toggleSort(f.key)}>{t(f.label)} {sort.replace("-", "") === f.key && (sort.startsWith("-") ? "↓" : "↑")}</button></th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {items.map((r) => (
                 <tr key={r.id} onClick={() => nav(`/${type}/${r.id}`)} className={r.status === "DONE" ? "done" : ""}>
-                  {type === "task" && <td><input type="checkbox" checked={r.status === "DONE"} onClick={(e) => quickDone(e, r)} readOnly /></td>}
-                  <td className="strong">{r.display_name}</td>
+                  {type === "task" && <td><input type="checkbox" aria-label={r.display_name} checked={r.status === "DONE"} onClick={(e) => quickDone(e, r)} readOnly /></td>}
+                  <td className="strong"><Link to={`/${type}/${r.id}`} className="row-link" onClick={(e) => e.stopPropagation()}>{r.display_name}</Link></td>
                   {type === "lead" && <td><GradeBadge grade={r.grade} score={r.score} /></td>}
                   {cols.slice(type === "contact" || type === "lead" ? 0 : 1).map((f) => <td key={f.key}><FieldValue field={f} record={r} /></td>)}
                 </tr>

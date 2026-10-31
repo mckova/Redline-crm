@@ -1,0 +1,93 @@
+/* Public product page. Static composition first; scroll-driven motion layered on where supported. */
+.landing { --gutter: clamp(20px, 5vw, 72px); --section: clamp(72px, 12vw, 160px); background: var(--paper); color: var(--ink); overflow-x: clip; }
+.l-nav { position: sticky; top: 0; z-index: var(--z-sticky); display: flex; justify-content: space-between; align-items: center; padding: 14px var(--gutter); background: rgb(247 247 245 / 0.9); border-block-end: 1px solid transparent; }
+.l-nav .logo { padding: 0; }
+.l-cta { display: inline-block; background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 600; transition: transform var(--dur-press) var(--ease-out); }
+.l-cta.small { padding: 7px 14px; }
+.l-cta:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .l-cta:hover { text-decoration: none; background: #2a2e36; } }
+.l-link { color: var(--ink-2); font-weight: 500; padding: 10px 6px; }
+.l-eyebrow { color: var(--accent-ink); font-weight: 600; font-size: var(--fs-sm); margin: 0 0 var(--s3); }
+.l-display { display: block; font-size: clamp(40px, 6.4vw, 84px); line-height: 0.98; letter-spacing: -0.035em; font-weight: 700; margin: 0 0 var(--s5); max-inline-size: 13ch; }
+.l-h2 { display: block; font-size: clamp(28px, 3.6vw, 48px); line-height: 1.04; letter-spacing: -0.025em; font-weight: 680; margin: 0 0 var(--s4); max-inline-size: 18ch; }
+.l-lede { font-size: clamp(17px, 1.5vw, 20px); color: var(--ink-2); max-inline-size: 46ch; line-height: 1.55; margin: 0 0 var(--s6); }
+.l-body { font-size: var(--fs-lg); color: var(--ink-2); max-inline-size: 52ch; line-height: 1.6; }
+
+/* Act 1 · layered hero: back grid, copy, mid cards, front notes. Copy sits between planes. */
+.l-hero { --px: 0; --py: 0; position: relative; min-block-size: min(88dvh, 860px); display: grid; align-items: center; padding: var(--s12) var(--gutter); isolation: isolate; }
+.plane { position: absolute; inset: 0; pointer-events: none; }
+.plane-back { z-index: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; padding: 12% var(--gutter) 0 48%; opacity: 0.55;
+  transform: translate(calc(var(--px) * -8px), calc(var(--py) * -6px)); }
+.ghost-col { border-radius: 14px; background: repeating-linear-gradient(180deg, #ecebe6 0 64px, transparent 64px 76px); mask-image: linear-gradient(180deg, #000 30%, transparent 95%); }
+.l-hero-copy { position: relative; z-index: 2; }
+.plane-mid { z-index: 1; transform: translate(calc(var(--px) * 14px), calc(var(--py) * 10px)); }
+.plane-front { z-index: 3; transform: translate(calc(var(--px) * 26px), calc(var(--py) * 18px)); }
+.fcard { position: absolute; display: grid; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow-lg); min-inline-size: 220px; }
+.fcard span { color: var(--muted); font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+.c1 { inset-inline-end: 12%; inset-block-start: 22%; } .c2 { inset-inline-end: 26%; inset-block-start: 48%; } .c3 { inset-inline-end: 6%; inset-block-start: 62%; }
+.fnote { position: absolute; inset-inline-end: 16%; inset-block-start: 36%; background: var(--accent); color: #fff; font-weight: 600; font-size: var(--fs-sm); padding: 10px 14px; border-radius: 10px; box-shadow: var(--shadow-lg); }
+.fnote.n2 { inset-inline-end: 9%; inset-block-start: 78%; background: var(--ink); }
+
+/* Act 2 · pinned scrub */
+.l-pin { block-size: 260dvh; padding-inline: var(--gutter); view-timeline-name: --pin; }
+.l-pin-sticky { position: sticky; top: 64px; min-block-size: calc(100dvh - 64px); display: grid; grid-template-columns: 1fr 1fr; gap: var(--s12); align-items: center; }
+.l-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: var(--s6); box-shadow: var(--shadow-lg); display: grid; gap: 10px; }
+.l-note { background: #f3f3f0; border-radius: 12px; padding: 12px 14px; color: var(--ink-2); font-style: italic; }
+.l-step { border: 1px solid var(--accent-line); background: var(--accent-soft); color: var(--accent-ink); border-radius: 10px; padding: 10px 12px; font-weight: 500; font-size: var(--fs-sm); }
+.l-step.s1 { background: transparent; border-color: transparent; color: var(--muted); padding-block: 2px; }
+
+/* Act 3 · live approvals */
+.l-approve { padding: var(--section) var(--gutter); display: grid; grid-template-columns: 1fr 1fr; gap: var(--s12); align-items: center; border-block-start: 1px solid var(--line); }
+.l-approve-box { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: var(--s6); box-shadow: var(--shadow); display: grid; gap: var(--s4); }
+.l-approve-box fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
+.l-mini-tl { list-style: none; margin: 0; padding: var(--s3) 0 0; border-block-start: 1px solid var(--line); display: grid; gap: 6px; min-block-size: 96px; }
+.l-mini-tl li { transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out); @starting-style { opacity: 0; transform: translateY(4px); } }
+
+/* Act 4 · tiles */
+.l-tiles { padding: var(--section) var(--gutter); background: var(--ink); color: #f2f2ee; }
+.l-tiles .l-h2 { color: #fff; }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4); margin-block-start: var(--s10); }
+.tile { border: 1px solid #2c3038; border-radius: 16px; padding: var(--s6); background: #1d2026; min-block-size: 220px; display: grid; align-content: space-between; }
+.tile h3 { color: #fff; font-size: var(--fs-xl); line-height: 1.15; margin: 0 0 var(--s3); display: block; }
+.tile p { color: #b9bcc4; margin: 0; line-height: 1.55; }
+
+/* Act 5 · resolve */
+.l-end { padding: var(--section) var(--gutter); display: grid; justify-items: center; gap: var(--s6); text-align: center; }
+.l-end .l-h2 { margin-inline: auto; }
+.l-end .login-card { text-align: start; }
+
+/* Scroll-driven motion, only where supported and wanted */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .plane-back { animation: drift-back linear both; animation-timeline: scroll(root); animation-range: 0 90dvh; }
+    .plane-mid { animation: drift-mid linear both; animation-timeline: scroll(root); animation-range: 0 90dvh; }
+    .plane-front { animation: drift-front linear both; animation-timeline: scroll(root); animation-range: 0 90dvh; }
+    .l-hero-copy { animation: copy-out linear both; animation-timeline: scroll(root); animation-range: 30dvh 90dvh; }
+    @keyframes drift-back { to { translate: 0 -40px; } }
+    @keyframes drift-mid { to { translate: 0 -140px; } }
+    @keyframes drift-front { to { translate: 0 -260px; opacity: 0; } }
+    @keyframes copy-out { to { opacity: 0.2; translate: 0 -30px; } }
+
+    .l-step { animation: step-in linear both; animation-timeline: --pin; }
+    .l-step.s1 { animation-range: contain 0% contain 14%; }
+    .l-step.s2 { animation-range: contain 14% contain 34%; }
+    .l-step.s3 { animation-range: contain 34% contain 54%; }
+    .l-step.s4 { animation-range: contain 54% contain 74%; }
+    @keyframes step-in { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+    .tile { animation: tile-in linear both; animation-timeline: view(); animation-range: entry calc(10% + var(--i) * 6%) cover 34%; }
+    @keyframes tile-in { from { clip-path: inset(0 0 100% 0 round 16px); transform: translateY(24px); } to { clip-path: inset(0 0 0 0 round 16px); transform: none; } }
+  }
+}
+
+@media (max-width: 860px) {
+  .l-hero { min-block-size: auto; padding-block: var(--s10) var(--s12); }
+  .plane-back, .plane-front { display: none; }
+  .plane-mid { position: relative; inset: auto; display: grid; gap: 10px; margin-block-start: var(--s8); transform: none; }
+  .fcard { position: relative; inset: auto; }
+  .l-pin { block-size: auto; padding-block: var(--section); }
+  .l-pin-sticky { position: static; grid-template-columns: 1fr; min-block-size: 0; gap: var(--s6); }
+  .l-approve { grid-template-columns: 1fr; gap: var(--s6); }
+  .tiles { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) { .tiles { grid-template-columns: 1fr; } }

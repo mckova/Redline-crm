@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type RecordType } from "../api";
+import { t } from "../i18n";
 
 type Pending = { tool_use_id: string; name: string; summary: string; status: string; record?: { type: string; id: number; name: string }; error?: string };
 type Item =
@@ -40,7 +41,7 @@ const PROMPTS_RECORD = [
 ];
 
 export default function Copilot({ target, onClose, onChanged }: { target?: { type: RecordType; id: number; name: string }; onClose: () => void; onChanged?: () => void }) {
-  const [status, setStatus] = useState<{ enabled: boolean; model: string } | null>(null);
+  const [status, setStatus] = useState<{ enabled: boolean; mode: string; model: string } | null>(null);
   const [thread, setThread] = useState<Thread | null>(null);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
@@ -83,37 +84,37 @@ export default function Copilot({ target, onClose, onChanged }: { target?: { typ
   const prompts = target ? PROMPTS_RECORD : PROMPTS_GLOBAL;
 
   return (
-    <aside className="copilot">
+    <aside className="copilot" aria-label={t("✦ Copilot")}>
       <div className="copilot-head">
-        <div><b>✦ Copilot</b>{target && <div className="muted small">about {target.name}</div>}</div>
+        <div><b>{t("✦ Copilot")}</b> {status?.mode === "demo" && <span className="badge tone-amber" title={t("Demo mode: no API key is set, so an offline stand-in answers from the CRM data. Set ANTHROPIC_API_KEY to use Claude Opus 5.5.")}>{t("Demo AI")}</span>}{target && <div className="muted small">{t("about {x}", { x: target.name })}</div>}</div>
         <div className="row">
-          {thread && <button className="ghost small" onClick={() => setThread(null)}>New chat</button>}
-          <button className="ghost" onClick={onClose}>✕</button>
+          {thread && <button className="ghost small" onClick={() => setThread(null)}>{t("New chat")}</button>}
+          <button className="ghost icon" aria-label={t("Close")} onClick={onClose}>✕</button>
         </div>
       </div>
-      <div className="copilot-body">
+      <div className="copilot-body" aria-live="polite" aria-busy={busy}>
         {status && !status.enabled && (
           <div className="ai-off">
-            <b>AI is not configured.</b>
-            <p className="muted small">Set <code>ANTHROPIC_API_KEY</code> on the server and restart. Copilot uses {status.model} with tool use; every change it proposes waits for your approval.</p>
+            <b>{t("AI is not configured.")}</b>
+            <p className="muted small">{t("Set ANTHROPIC_API_KEY on the server and restart. Every change Copilot proposes waits for your approval.")}</p>
           </div>
         )}
         {!thread?.display.length && status?.enabled && (
           <div className="copilot-empty">
-            <p className="muted">Ask anything about your CRM, or paste call notes and I'll propose the updates. Nothing changes until you approve it.</p>
-            {prompts.map((p) => <button key={p} className="chip-btn" onClick={() => (p.endsWith(": ") ? setText(p) : send(p))}>{p}</button>)}
+            <p className="muted">{t("Ask anything about your CRM, or paste call notes and I'll propose the updates. Nothing changes until you approve it.")}</p>
+            {prompts.map((p) => t(p)).map((p) => <button key={p} className="chip-btn" onClick={() => (p.endsWith(": ") ? setText(p) : send(p))}>{p}</button>)}
           </div>
         )}
         {thread?.display.map((d, i) => {
           if (d.role === "user") return <div key={i} className="bubble me">{d.text}</div>;
           if (d.role === "assistant") return <div key={i} className="bubble ai"><Rich text={d.text} /></div>;
-          if (d.role === "tools") return <div key={i} className="tool-line">⌕ {[...new Set(d.items.map((t) => TOOL_LABEL[t] ?? t))].join(" · ")}</div>;
+          if (d.role === "tools") return <div key={i} className="tool-line">⌕ {[...new Set(d.items.map((x) => t(TOOL_LABEL[x] ?? x)))].join(" · ")}</div>;
           if (d.role !== "actions") return null;
           return (
             <div key={i} className="action-log">
               {d.items.map((a) => (
                 <div key={a.tool_use_id} className={`act-${a.status}`}>
-                  {STATUS_ICON[a.status]} {a.summary}{a.record && <> · <Link to={`/${a.record.type}/${a.record.id}`}>open</Link></>}
+                  {STATUS_ICON[a.status]} {a.summary}{a.record && <> · <Link to={`/${a.record.type}/${a.record.id}`}>{t("open")}</Link></>}
                   {a.error && <div className="small">{a.error}</div>}
                 </div>
               ))}
@@ -122,7 +123,7 @@ export default function Copilot({ target, onClose, onChanged }: { target?: { typ
         })}
         {thread && thread.pending.length > 0 && (
           <div className="approval">
-            <div className="small strong">Copilot wants to make {thread.pending.length} change{thread.pending.length > 1 ? "s" : ""}:</div>
+            <div className="small strong">{t("Copilot wants to make {n} change(s):", { n: thread.pending.length })}</div>
             {thread.pending.map((p) => (
               <label key={p.tool_use_id} className="approval-item">
                 <input type="checkbox" checked={!!decisions[p.tool_use_id]} onChange={(e) => setDecisions({ ...decisions, [p.tool_use_id]: e.target.checked })} />
@@ -130,23 +131,24 @@ export default function Copilot({ target, onClose, onChanged }: { target?: { typ
               </label>
             ))}
             <div className="row">
-              <button className="primary" disabled={busy} onClick={() => resolve()}>Apply selected</button>
-              <button className="ghost" disabled={busy} onClick={() => resolve({})}>Reject all</button>
+              <button className="primary" disabled={busy} onClick={() => resolve()}>{t("Apply selected")}</button>
+              <button className="ghost" disabled={busy} onClick={() => resolve({})}>{t("Reject all")}</button>
             </div>
           </div>
         )}
-        {busy && <div className="bubble ai thinking"><span /><span /><span /></div>}
-        {error && <div className="error">{error}</div>}
+        {busy && <div className="bubble ai thinking" role="status" aria-label={t("Thinking…")}><span /><span /><span /></div>}
+        {error && <div className="error" role="alert">{error}</div>}
         <div ref={end} />
       </div>
       <form className="copilot-input" onSubmit={(e) => { e.preventDefault(); void send(text); }}>
         <textarea
-          rows={text.length > 80 ? 5 : 2} value={text} placeholder={thread?.pending.length ? "Approve or reject the changes above first" : "Ask, or paste call notes…"}
+          aria-label={t("Ask, or paste call notes…")}
+          rows={text.length > 80 ? 5 : 2} value={text} placeholder={thread?.pending.length ? t("Approve or reject the changes above first") : t("Ask, or paste call notes…")}
           disabled={!status?.enabled || !!thread?.pending.length}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(text); } }}
         />
-        <button className="primary" disabled={!status?.enabled || busy || !text.trim()}>Send</button>
+        <button className="primary" disabled={!status?.enabled || busy || !text.trim()}>{t("Send")}</button>
       </form>
     </aside>
   );

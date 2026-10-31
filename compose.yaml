@@ -5,6 +5,7 @@ services:
     environment:
       KESHER_SECRET: change-me-in-production-please
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      KESHER_AI: ${KESHER_AI:-auto}   # auto: Claude when a key is set, offline demo otherwise
     volumes: ["kesher-data:/data"]
 volumes:
   kesher-data:
