@@ -18,12 +18,12 @@
   --tint: rgb(255 255 255 / 0.6);       /* row hover */
   --lifted: rgb(255 255 255 / 0.96);    /* the selected row */
   --surface: #f4f5f8;
-  --ink: #17181c; --ink-soft: #5f626b; --ink-faint: #868994;
+  --ink: #17181c; --ink-soft: #5f626b; --ink-faint: #666974;
   --line: rgb(23 24 28 / 0.07); --line-strong: rgb(23 24 28 / 0.14);
   --accent: #0e6b66; --accent-hover: #0b5a56; --accent-ink: #f2fbfa; --accent-wash: rgb(14 107 102 / 0.08); --accent-line: rgb(14 107 102 / 0.26);
   --accent-grad: linear-gradient(180deg, #14807a, #0d625d);
   --prop-grad: linear-gradient(160deg, rgb(20 116 110 / 0.92), rgb(9 74 70 / 0.94));
-  --warn: #a8641c; --warn-wash: rgb(168 100 28 / 0.09); --warn-line: rgb(168 100 28 / 0.26);
+  --warn: #96570f; --warn-wash: rgb(150 87 15 / 0.09); --warn-line: rgb(150 87 15 / 0.26);
   --loss: #8f4a3e; --loss-wash: rgb(143 74 62 / 0.08); --loss-line: rgb(143 74 62 / 0.24);
   --scrim: rgb(24 27 36 / 0.2);
   --edge: inset 0 1px 0 rgb(255 255 255 / 0.7);
@@ -43,10 +43,10 @@
   --raised: rgb(255 255 255 / 0.06); --raised-hover: rgb(255 255 255 / 0.1);
   --tint: rgb(255 255 255 / 0.04); --lifted: rgb(255 255 255 / 0.09);
   --surface: #16191e;
-  --ink: #eceef2; --ink-soft: #a5a9b3; --ink-faint: #7f838d;
+  --ink: #eceef2; --ink-soft: #a5a9b3; --ink-faint: #9ca0aa;
   --line: rgb(255 255 255 / 0.07); --line-strong: rgb(255 255 255 / 0.14);
   --accent: #5cbcb2; --accent-hover: #74cac1; --accent-ink: #062a27; --accent-wash: rgb(92 188 178 / 0.12); --accent-line: rgb(92 188 178 / 0.3);
-  --accent-grad: linear-gradient(180deg, #2f9c94, #17706a);
+  --accent-grad: linear-gradient(180deg, #6ccfc4, #4fb2a8);
   --prop-grad: linear-gradient(160deg, rgb(22 104 98 / 0.9), rgb(10 62 59 / 0.94));
   --warn: #dba062; --warn-wash: rgb(219 160 98 / 0.1); --warn-line: rgb(219 160 98 / 0.28);
   --loss: #d98f80; --loss-wash: rgb(217 143 128 / 0.1); --loss-line: rgb(217 143 128 / 0.28);
@@ -503,7 +503,7 @@ tr.done td.name a, li.done a { text-decoration: line-through; }
 .approval { background: var(--prop-grad); color: #f2fbfa; border: 1px solid rgb(255 255 255 / 0.18); border-radius: 22px; padding: 14px; box-shadow: 0 22px 44px -22px rgb(8 70 66 / 0.5);
   transition: opacity var(--d-ui) var(--ease-out), transform var(--d-ui) var(--ease-out); @starting-style { opacity: 0; transform: translateY(6px); } }
 .approval-head { font-weight: 500; font-size: 15px; letter-spacing: -0.01em; padding: 2px 4px 10px; }
-.approval-list { background: rgb(255 255 255 / 0.94); color: var(--ink); border-radius: 16px; padding: 2px 12px; }
+.approval-list { --ink: #17181c; --ink-soft: #484b54; --ink-faint: #666974; --line: rgb(23 24 28 / 0.08); background: rgb(255 255 255 / 0.94); color: var(--ink); border-radius: 16px; padding: 2px 12px; }
 .approval-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; font-size: var(--t-sm); }
 .approval-item + .approval-item { border-block-start: 1px solid var(--line); }
 .approval-item input { margin-block-start: 2px; }
@@ -566,7 +566,7 @@ tr.done td.name a, li.done a { text-decoration: line-through; }
 .ph p { font-size: 13px; opacity: 0.72; margin-block-start: 4px; }
 .prop .x { inline-size: 34px; block-size: 34px; min-block-size: 0; padding: 0; border-radius: 50%; background: rgb(255 255 255 / 0.12); border: 1px solid rgb(255 255 255 / 0.2); color: #f2fbfa; box-shadow: none; flex: none; }
 @media (hover: hover) and (pointer: fine) { .prop .x:hover:not(:disabled) { background: rgb(255 255 255 / 0.22); box-shadow: none; } }
-.quote { margin: 16px 0 12px; font-size: 13px; line-height: 1.5; color: rgb(242 251 250 / 0.88); background: rgb(255 255 255 / 0.1); border: 1px solid rgb(255 255 255 / 0.14); border-radius: 16px; padding: 12px 14px; }
+.quote { margin: 16px 0 12px; font-size: 13px; line-height: 1.5; color: rgb(242 251 250 / 0.96); background: rgb(0 40 38 / 0.22); border: 1px solid rgb(255 255 255 / 0.14); border-radius: 16px; padding: 12px 14px; }
 .chg { background: rgb(255 255 255 / 0.94); color: #17181c; border-radius: var(--r-inner); padding: 4px 14px; }
 .chg-row { display: flex; align-items: center; gap: 10px; min-block-size: 44px; padding-block: 6px; cursor: pointer; }
 .chg-row + .chg-row { border-block-start: 1px solid rgb(23 24 28 / 0.07); }
@@ -578,7 +578,7 @@ tr.done td.name a, li.done a { text-decoration: line-through; }
 .chg-row input:focus-visible + .chk { outline: 2px solid #0e6b66; outline-offset: 2px; }
 .chg-row .k { color: #5f626b; inline-size: 74px; flex: none; font-size: 13px; }
 .chg-row .v { min-inline-size: 0; }
-.chg-row s { color: #868994; margin-inline-end: 6px; font-size: 13px; }
+.chg-row s { color: #666974; margin-inline-end: 6px; font-size: 13px; }
 .chg-row b { font-weight: 600; }
 .chg-row input:not(:checked) ~ .v { opacity: 0.45; }
 .acts { display: flex; gap: 8px; margin-block-start: 14px; }
@@ -669,3 +669,12 @@ table.plain th.num { text-align: end; }
   .deals { grid-template-columns: minmax(0, 1fr); }
   .side-col { position: static; }
 }
+
+/* dark theme: translucent white fills become subtle light-on-dark fills, so theme-coloured text stays readable */
+[data-theme="dark"] :is(.ledger > div, .stage, .tag, .chip, .email-draft, .describe, .rule-body code, .ai-off, .prompts button) { background: rgb(255 255 255 / 0.06); }
+[data-theme="dark"] :is(.col-side, .deal-card, .tl-icon, .msg.me) { background: rgb(255 255 255 / 0.07); }
+[data-theme="dark"] :is(.search input, .assistant-input textarea, .log textarea, .lp-notes textarea) { background: rgb(255 255 255 / 0.06); }
+[data-theme="dark"] .search-hits li.sel { background: rgb(255 255 255 / 0.1); }
+@media (hover: hover) and (pointer: fine) { [data-theme="dark"] .step:hover:not(.active):not(:disabled) { background: rgb(255 255 255 / 0.08); } }
+/* narrow screens: popovers sit inside the viewport instead of hanging off the button */
+@media (max-width: 520px) { .menu { position: fixed; inset-inline: 12px; inset-block-start: 70px; inline-size: auto !important; } }
