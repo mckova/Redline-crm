@@ -64,7 +64,7 @@ logged while the rest still run) and dry-run webhooks by default.
 
 ### AI modes
 
-`KESHER_AI=auto` (default) uses Claude when `ANTHROPIC_API_KEY` is set and an
+`REDLINE_AI=auto` (default) uses Claude when `ANTHROPIC_API_KEY` is set and an
 offline demo stand-in otherwise; `on`, `demo` and `off` force a mode. The demo
 client (`demo_ai.py`) speaks the same `beta.messages.create/parse` shape, so it
 drives the real agent loop, approval cards, background jobs and structured

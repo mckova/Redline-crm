@@ -23,8 +23,8 @@ export default function Pipeline() {
   useEffect(() => {
     void load();
     const h = () => void load();
-    window.addEventListener("kesher:changed", h);
-    return () => window.removeEventListener("kesher:changed", h);
+    window.addEventListener("redline:changed", h);
+    return () => window.removeEventListener("redline:changed", h);
   }, [owner]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function drop(stage: string) {

@@ -52,7 +52,7 @@ export default function Landing() {
   return (
     <div className="lp">
       <header className="lp-bar">
-        <span className="lp-brand"><span className="mark" aria-hidden="true">ק</span>KESHER</span>
+        <span className="lp-brand"><span className="mark" aria-hidden="true">R</span>Redline</span>
         <nav className="row" aria-label={t("Page")}>
           <button className="ghost small" lang={lang === "he" ? "en" : "he"} onClick={() => setLang(lang === "he" ? "en" : "he")}>{lang === "he" ? "English" : "עברית"}</button>
           <a className="lp-signin" href="#signin">{t("Sign in")}</a>
@@ -63,7 +63,7 @@ export default function Landing() {
         <section className="lp-hero" aria-labelledby="lp-title">
           <div className="lp-copy">
             <h1 id="lp-title"><span>{t("Paste the call.")}</span> <span>{t("Approve the update.")}</span></h1>
-            <p className="lp-lede">{t("KESHER's assistant reads your sales notes, drafts the CRM changes, and writes nothing until you approve each one.")}</p>
+            <p className="lp-lede">{t("Redline's assistant reads your sales notes, drafts the CRM changes, and writes nothing until you approve each one.")}</p>
             <a className="lp-cta" href="#signin">{t("Open the sample workspace")}</a>
             <p className="lp-fine">{t("Works without an API key in an offline demo mode. Add a key and the same screens use Claude Opus 5.5.")}</p>
           </div>
@@ -107,7 +107,7 @@ export default function Landing() {
       </main>
 
       <footer className="lp-foot">
-        <span>{t("KESHER is open source under the MIT license.")}</span>
+        <span>{t("Redline is open source under the MIT license.")}</span>
         <a href="https://github.com/mckova/kesher-crm">{t("Source on GitHub")}</a>
       </footer>
     </div>

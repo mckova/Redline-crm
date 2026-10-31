@@ -31,8 +31,8 @@ export default function App() {
   useEffect(() => {
     if (auth.token) api("/auth/me").then(setUser).catch(() => auth.set(null)).finally(() => setChecking(false));
     const out = () => setUser(null);
-    window.addEventListener("kesher:logout", out);
-    return () => window.removeEventListener("kesher:logout", out);
+    window.addEventListener("redline:logout", out);
+    return () => window.removeEventListener("redline:logout", out);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (checking) return null;
@@ -42,8 +42,8 @@ export default function App() {
     <div className={`shell ${assistant.open ? "with-assistant" : ""}`}>
       <nav className="side" aria-label={t("Main")}>
         <div className="workspace">
-          <span className="mark" aria-hidden="true">ק</span>
-          <div><b>KESHER</b><span>{t("Sample workspace")}</span></div>
+          <span className="mark" aria-hidden="true">R</span>
+          <div><b>Redline</b><span>{t("Sample workspace")}</span></div>
         </div>
         {NAV.map(([label, items]) => (
           <div key={label ?? "main"} role="group" aria-label={label ? t(label) : undefined}>

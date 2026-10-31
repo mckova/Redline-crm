@@ -1,6 +1,6 @@
-# KESHER interface
+# Redline interface
 
-KESHER is a work tool for people who sell. They open it many times a day,
+Redline is a work tool for people who sell. They open it many times a day,
 read numbers in it, and need to trust what changed and who changed it. The
 interface is built for that: quiet, dense where it has to be, and explicit
 about provenance.
@@ -21,8 +21,7 @@ page has the same frame and the eye always knows where the work is. The
 product page repeats the motif: the sample memo lies on a forest band the way
 the app's sheet lies on the rail.
 
-The monogram is ק (qof), the first letter of קשר, set in the Hebrew companion
-of the UI face.
+The monogram is the R of Redline, set in the UI face.
 
 ## Colour
 

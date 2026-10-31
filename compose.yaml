@@ -1,11 +1,11 @@
 services:
-  kesher:
+  redline:
     build: .
     ports: ["8000:8000"]
     environment:
-      KESHER_SECRET: change-me-in-production-please
+      REDLINE_SECRET: change-me-in-production-please
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      KESHER_AI: ${KESHER_AI:-auto}   # auto: Claude when a key is set, offline demo otherwise
-    volumes: ["kesher-data:/data"]
+      REDLINE_AI: ${REDLINE_AI:-auto}   # auto: Claude when a key is set, offline demo otherwise
+    volumes: ["redline-data:/data"]
 volumes:
-  kesher-data:
+  redline-data:

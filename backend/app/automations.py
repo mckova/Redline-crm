@@ -142,7 +142,7 @@ def _run_action(db: Session, action: dict, event: RecordEvent, data: dict, actor
     if kind == "webhook":
         url = params.get("url", "")
         payload = {"event": event.name, "record": data, "diff": event.diff}
-        if os.environ.get("KESHER_WEBHOOKS", "off") != "on" or not url.startswith(("http://", "https://")):
+        if os.environ.get("REDLINE_WEBHOOKS", "off") != "on" or not url.startswith(("http://", "https://")):
             return {"action": kind, "url": url, "delivered": False, "dry_run": True}
         req = urllib.request.Request(
             url, data=json.dumps(payload, default=str).encode(), headers={"Content-Type": "application/json"}

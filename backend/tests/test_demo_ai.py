@@ -6,7 +6,7 @@ from app import ai
 
 @pytest.fixture()
 def demo(monkeypatch):
-    monkeypatch.setenv("KESHER_AI", "demo")
+    monkeypatch.setenv("REDLINE_AI", "demo")
     yield
 
 
@@ -17,13 +17,13 @@ def mk(client, plural, **values):
 
 
 def test_auto_mode_without_key_is_demo(monkeypatch):
-    monkeypatch.setenv("KESHER_AI", "auto")
+    monkeypatch.setenv("REDLINE_AI", "auto")
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
     assert ai.ai_mode() == "demo"
     monkeypatch.setenv("ANTHROPIC_API_KEY", "x")
     assert ai.ai_mode() == "live"
-    monkeypatch.setenv("KESHER_AI", "off")
+    monkeypatch.setenv("REDLINE_AI", "off")
     assert ai.ai_mode() == "off"
 
 

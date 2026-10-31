@@ -25,8 +25,8 @@ export default function RecordDetail({ type }: { type: RecordType }) {
 
   useEffect(() => {
     const h = () => setTick((n) => n + 1);
-    window.addEventListener("kesher:changed", h);
-    return () => window.removeEventListener("kesher:changed", h);
+    window.addEventListener("redline:changed", h);
+    return () => window.removeEventListener("redline:changed", h);
   }, []);
 
   const reload = () => setTick((n) => n + 1);

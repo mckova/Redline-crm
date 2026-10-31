@@ -6,7 +6,7 @@ import { t } from "../i18n";
 /** Sign-in form. Embedded at the end of the product page; prefilled with the sample admin account. */
 export default function Login({ embedded = false }: { embedded?: boolean }) {
   const { setUser } = useStore();
-  const [email, setEmail] = useState("admin@kesher.dev");
+  const [email, setEmail] = useState("admin@redline.dev");
   const [password, setPassword] = useState("demo1234");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -29,7 +29,7 @@ export default function Login({ embedded = false }: { embedded?: boolean }) {
       <label className="field"><span>{t("Password")}</span><input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} /></label>
       {error && <div className="error" role="alert">{error}</div>}
       <button className="primary" disabled={busy}>{busy ? t("Signing in…") : t("Open the sample workspace")}</button>
-      <p className="demo-users">{t("Other sample users: dor@kesher.dev and noa@kesher.dev, same password.")}</p>
+      <p className="demo-users">{t("Other sample users: dor@redline.dev and noa@redline.dev, same password.")}</p>
     </form>
   );
   return embedded ? form : <div className="login">{form}</div>;

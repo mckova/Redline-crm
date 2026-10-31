@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from .db import get_db
 from .models import User
 
-SECRET = os.environ.get("KESHER_SECRET", "dev-secret-change-me-please-32bytes!")
+SECRET = os.environ.get("REDLINE_SECRET", "dev-secret-change-me-please-32bytes!")
 TOKEN_TTL = timedelta(hours=12)
 _bearer = HTTPBearer(auto_error=False)
 

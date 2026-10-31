@@ -83,7 +83,7 @@ export default function Assistant({ target, onClose, onChanged }: { target?: { t
     setBusy(true); setError(null);
     try {
       setThread(await api<Thread>(`/ai/threads/${thread.id}/resolve`, { body: { decisions: choice } }));
-      window.dispatchEvent(new Event("kesher:changed"));
+      window.dispatchEvent(new Event("redline:changed"));
       onChanged?.();
     } catch (e: any) { setError(e.message); } finally { setBusy(false); }
   }
@@ -108,7 +108,7 @@ export default function Assistant({ target, onClose, onChanged }: { target?: { t
           {status && !status.enabled && (
             <div className="ai-off">
               <b>{t("The assistant is switched off on this server.")}</b>
-              <p className="small">{t("Set ANTHROPIC_API_KEY, or KESHER_AI=demo for the offline demo, and restart.")}</p>
+              <p className="small">{t("Set ANTHROPIC_API_KEY, or REDLINE_AI=demo for the offline demo, and restart.")}</p>
             </div>
           )}
           {!thread?.display.length && status?.enabled && (

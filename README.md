@@ -1,4 +1,4 @@
-# KESHER CRM
+# Redline CRM
 
 [![CI](https://github.com/mckova/kesher-crm/actions/workflows/ci.yml/badge.svg)](https://github.com/mckova/kesher-crm/actions/workflows/ci.yml)
 
@@ -9,7 +9,6 @@ one. Every morning it writes a short memo of where to start. Under it is an
 event-driven core: every change lands on a timeline with its source, can
 trigger rules, and feeds lead scores and deal health. English and Hebrew (RTL).
 
-> קשר (*kesher*): Hebrew for "connection". [עברית](README.he.md)
 
 ![Product page](docs/screenshots/01-product-page.png)
 
@@ -30,7 +29,7 @@ trigger rules, and feeds lead scores and deal health. English and Hebrew (RTL).
 - **Provenance**: every change shows who made it, by hand, by a rule, by import or via the assistant, with the field before and after. Anything the assistant wrote names the model that drafted it.
 - **Model setup**: `claude-opus-5-5` with adaptive thinking and a set `effort` per feature (`medium` for the panel, reads and memo, `low` for drafting and rule steps). Strict tool schemas, structured outputs via Pydantic, server-side refusal fallbacks (`fallbacks: "default"`) and prompt caching.
 
-**Try it without an API key.** With no `ANTHROPIC_API_KEY`, KESHER runs the assistant in *demo mode*: an offline stand-in that speaks the same API shape and drives the real agent loop, approval list, background jobs and structured outputs, using simple rules over your CRM data. Everything it writes is labelled "Drafted by the offline demo assistant". Set a key and the same screens use Claude. The screenshots here were taken in demo mode.
+**Try it without an API key.** With no `ANTHROPIC_API_KEY`, Redline runs the assistant in *demo mode*: an offline stand-in that speaks the same API shape and drives the real agent loop, approval list, background jobs and structured outputs, using simple rules over your CRM data. Everything it writes is labelled "Drafted by the offline demo assistant". Set a key and the same screens use Claude. The screenshots here were taken in demo mode.
 
 ## Features
 
@@ -103,7 +102,7 @@ frontend/src/     React app: product page, Today, pipeline, lists, record page, 
 
 ```bash
 docker compose up --build
-# http://localhost:8000  ·  admin@kesher.dev / demo1234
+# http://localhost:8000  ·  admin@redline.dev / demo1234
 # AI runs in demo mode; export ANTHROPIC_API_KEY first to use Claude
 ```
 
@@ -117,18 +116,18 @@ uvicorn app.main:app --reload            # serves API + built frontend on :8000
 
 For frontend hot reload, run `npm run dev` in `frontend/`. It proxies `/api` to `:8000`.
 
-On first start the app seeds a demo workspace: 12 companies, about 25 people, 30 deals, 20 leads, tasks, notes and automation rules. Set `KESHER_SEED=off` to start empty.
+On first start the app seeds a demo workspace: 12 companies, about 25 people, 30 deals, 20 leads, tasks, notes and automation rules. Set `REDLINE_SEED=off` to start empty.
 
 | Env var | Default | Purpose |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | not set | Turns on Claude for the assistant panel, record reads, memo, rule drafting and assistant steps |
-| `KESHER_AI` | `auto` | `auto` (Claude with a key, demo without), `on`, `demo` or `off` |
-| `KESHER_AI_MODEL` | `claude-opus-5-5` | Claude model for all assistant features |
-| `KESHER_AI_AUTO_INSIGHTS` | `on` | Background analysis of new leads and stage changes |
-| `KESHER_DATABASE_URL` | `sqlite:///./kesher.db` | Any SQLAlchemy URL (e.g. Postgres) |
-| `KESHER_SECRET` | dev value | JWT signing key: **set in production** |
-| `KESHER_WEBHOOKS` | `off` | `on` to actually POST webhook actions (otherwise dry-run, logged) |
-| `KESHER_SEED` | `on` | Seed demo data on an empty DB |
+| `REDLINE_AI` | `auto` | `auto` (Claude with a key, demo without), `on`, `demo` or `off` |
+| `REDLINE_AI_MODEL` | `claude-opus-5-5` | Claude model for all assistant features |
+| `REDLINE_AI_AUTO_INSIGHTS` | `on` | Background analysis of new leads and stage changes |
+| `REDLINE_DATABASE_URL` | `sqlite:///./redline.db` | Any SQLAlchemy URL (e.g. Postgres) |
+| `REDLINE_SECRET` | dev value | JWT signing key: **set in production** |
+| `REDLINE_WEBHOOKS` | `off` | `on` to actually POST webhook actions (otherwise dry-run, logged) |
+| `REDLINE_SEED` | `on` | Seed demo data on an empty DB |
 
 ## Tests
 

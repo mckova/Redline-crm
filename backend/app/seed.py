@@ -76,10 +76,10 @@ def seed_if_empty(db: Session) -> bool:
 def seed(db: Session, rnd_seed: int = 7) -> None:
     rnd = random.Random(rnd_seed)
     now = utcnow()
-    admin = User(email="admin@kesher.dev", name="May Admin", role="admin", password_hash=hash_password("demo1234"))
+    admin = User(email="admin@redline.dev", name="May Admin", role="admin", password_hash=hash_password("demo1234"))
     reps = [
-        User(email="dor@kesher.dev", name="Dor Sales", role="sales", password_hash=hash_password("demo1234")),
-        User(email="noa@kesher.dev", name="Noa Sales", role="sales", password_hash=hash_password("demo1234")),
+        User(email="dor@redline.dev", name="Dor Sales", role="sales", password_hash=hash_password("demo1234")),
+        User(email="noa@redline.dev", name="Noa Sales", role="sales", password_hash=hash_password("demo1234")),
     ]
     db.add_all([admin, *reps])
     db.flush()

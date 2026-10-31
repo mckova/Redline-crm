@@ -1,7 +1,7 @@
 /** English / Hebrew UI. English strings are the keys; Hebrew switches the layout to RTL. */
 export type Lang = "en" | "he";
 
-const KEY = "kesher.lang";
+const KEY = "redline.lang";
 export const lang: Lang = (localStorage.getItem(KEY) as Lang) === "he" ? "he" : "en";
 export const isRTL = lang === "he";
 document.documentElement.lang = lang;
@@ -27,7 +27,7 @@ const HE: Record<string, string> = {
   "Drafted by the offline demo assistant": "נכתב על ידי עוזר הדמו הלא מקוון", "Drafted by {m}": "נכתב על ידי {m}",
   // sign in
   Email: "אימייל", Password: "סיסמה", "Sign in": "כניסה", "Signing in…": "נכנסים…", "Open the sample workspace": "לפתוח את סביבת הדוגמה",
-  "Other sample users: dor@kesher.dev and noa@kesher.dev, same password.": "משתמשי דוגמה נוספים: dor@kesher.dev ו-noa@kesher.dev, אותה סיסמה.",
+  "Other sample users: dor@redline.dev and noa@redline.dev, same password.": "משתמשי דוגמה נוספים: dor@redline.dev ו-noa@redline.dev, אותה סיסמה.",
   "That email and password don't match an account.": "האימייל והסיסמה לא תואמים לחשבון.", "Couldn't reach the server. Try again in a moment.": "אין חיבור לשרת. נסו שוב בעוד רגע.",
   // today
   "Where to start today": "מאיפה להתחיל היום", Rewrite: "לכתוב מחדש", "Reading the pipeline…": "קורא את הצנרת…", "today's memo": "המזכר של היום",
@@ -80,7 +80,7 @@ const HE: Record<string, string> = {
   // assistant
   "Working on {x}": "עובד על {x}", "Offline demo: answers come from simple rules over this workspace": "דמו לא מקוון: התשובות מגיעות מכללים פשוטים על נתוני הסביבה",
   "New conversation": "שיחה חדשה", "Close the assistant": "סגירת העוזר", "The assistant is switched off on this server.": "העוזר כבוי בשרת הזה.",
-  "Set ANTHROPIC_API_KEY, or KESHER_AI=demo for the offline demo, and restart.": "מגדירים ANTHROPIC_API_KEY, או KESHER_AI=demo לדמו הלא מקוון, ומפעילים מחדש.",
+  "Set ANTHROPIC_API_KEY, or REDLINE_AI=demo for the offline demo, and restart.": "מגדירים ANTHROPIC_API_KEY, או REDLINE_AI=demo לדמו הלא מקוון, ומפעילים מחדש.",
   "Ask about the pipeline, or paste notes from a call. I read records on my own; anything I'd change waits here for your approval.":
     "אפשר לשאול על הצנרת או להדביק סיכום שיחה. אני קורא רשומות לבד, וכל מה שהייתי משנה מחכה כאן לאישור שלך.",
   "What should I focus on today?": "על מה כדאי לי להתמקד היום?", "Which deals are at risk and what should I do about each?": "אילו עסקאות בסיכון ומה לעשות עם כל אחת?",
@@ -132,8 +132,8 @@ const HE: Record<string, string> = {
   "just now": "עכשיו", "{n}m ago": "לפני {n} דק׳", "{n}h ago": "לפני {n} שע׳", "{n}d ago": "לפני {n} ימים",
   // product page
   Page: "עמוד", "Paste the call.": "מדביקים את השיחה.", "Approve the update.": "מאשרים את העדכון.",
-  "KESHER's assistant reads your sales notes, drafts the CRM changes, and writes nothing until you approve each one.":
-    "העוזר של KESHER קורא את סיכומי המכירה, מנסח את השינויים ב-CRM, ולא כותב כלום עד שמאשרים כל אחד מהם.",
+  "Redline's assistant reads your sales notes, drafts the CRM changes, and writes nothing until you approve each one.":
+    "העוזר של Redline קורא את סיכומי המכירה, מנסח את השינויים ב-CRM, ולא כותב כלום עד שמאשרים כל אחד מהם.",
   "Works without an API key in an offline demo mode. Add a key and the same screens use Claude Opus 5.5.":
     "עובד בלי מפתח API במצב דמו לא מקוון. עם מפתח, אותם מסכים עובדים עם Claude Opus 5.5.",
   "Interactive sample of the assistant": "דוגמה אינטראקטיבית של העוזר", "Sample deal. Runs in your browser; nothing is sent.": "עסקת דוגמה. רץ בדפדפן, שום דבר לא נשלח.",
@@ -159,7 +159,7 @@ const HE: Record<string, string> = {
   "A timeline with sources": "טיימליין עם מקורות", "Every change shows who made it, by hand, by a rule or by the assistant, with the field before and after.": "כל שינוי מראה מי ביצע אותו, ידנית, כלל או העוזר, עם הערך לפני ואחרי.",
   "Hebrew and English": "עברית ואנגלית", "The whole interface mirrors for right-to-left, with light and dark themes.": "כל הממשק מתהפך לימין-לשמאל, עם ערכה בהירה וכהה.",
   "Try it on the sample workspace.": "לנסות על סביבת הדוגמה.", "Twelve companies, thirty deals and twenty leads, reset whenever the server restarts.": "שתים עשרה חברות, שלושים עסקאות ועשרים לידים, מתאפסים בכל הפעלה מחדש של השרת.",
-  "KESHER is open source under the MIT license.": "KESHER הוא קוד פתוח ברישיון MIT.", "Source on GitHub": "הקוד ב-GitHub",
+  "Redline is open source under the MIT license.": "Redline הוא קוד פתוח ברישיון MIT.", "Source on GitHub": "הקוד ב-GitHub",
   // counts
   "Waiting for your approval: 1 change": "ממתין לאישור שלך: שינוי אחד", "Waiting for your approval: {n} changes": "ממתין לאישור שלך: {n} שינויים",
   "in 1 day": "מחר", "1 open deal": "עסקה פתוחה אחת", "1 day": "יום אחד", "1 lead open": "ליד פתוח אחד", "1 deal": "עסקה אחת",

@@ -1,7 +1,7 @@
 """Offline demo stand-in for Claude.
 
-Used when no ``ANTHROPIC_API_KEY`` is configured (``KESHER_AI=auto``) or when
-``KESHER_AI=demo``. It speaks the same request/response shape as
+Used when no ``ANTHROPIC_API_KEY`` is configured (``REDLINE_AI=auto``) or when
+``REDLINE_AI=demo``. It speaks the same request/response shape as
 ``client.beta.messages.create`` / ``.parse`` and drives the *real* tool loop,
 approval cards, background jobs and structured outputs, but its "reasoning" is
 a small set of deterministic rules over the CRM data it is given. Everything it
@@ -342,7 +342,7 @@ def _automation(content: str):
         actions.append(DraftAction(type="ai_agent", title=None, body=None, due_in_days=None, url=None, values=None,
                                    instructions="Write a short brief on {{record.display_name}} as a note: context, risks, recommended next step."))
     if any(w in low for w in ("webhook", "slack", "notify", "התראה")):
-        actions.append(DraftAction(type="webhook", title=None, body=None, due_in_days=None, url="https://hooks.example.com/kesher", values=None, instructions=None))
+        actions.append(DraftAction(type="webhook", title=None, body=None, due_in_days=None, url="https://hooks.example.com/redline", values=None, instructions=None))
     if not actions or any(w in low for w in ("task", "call", "follow", "משימה", "להתקשר", "מעקב")):
         actions.append(DraftAction(type="create_task", title="Follow up: {{record.display_name}}", body=None, due_in_days=due, url=None, values=None, instructions=None))
     label = {"ai_agent": "AI brief", "create_task": "task", "webhook": "webhook"}

@@ -1,5 +1,5 @@
 /*
-  KESHER design system. Reasons for each decision are in DESIGN.md.
+  Redline design system. Reasons for each decision are in DESIGN.md.
   Shell: a forest-green rail with the work sheet inset on it. Work area: green-tinted paper, hairlines instead of boxes.
   Type: IBM Plex Sans with its Hebrew companion; Plex Mono only for figures (money, dates, scores).
   Signature: the five-tick stage meter. One accent (forest) for primary actions, progress and the assistant's mark.
@@ -110,7 +110,7 @@ input[type="checkbox"] { accent-color: var(--accent); inline-size: 15px; block-s
 .workspace { display: flex; align-items: center; gap: 10px; padding: 2px var(--s2) var(--s5); }
 .workspace b { display: block; font-size: var(--t-md); letter-spacing: 0.08em; font-weight: 600; }
 .workspace div span { display: block; font-size: var(--t-xs); color: var(--rail-soft); line-height: 1.25; }
-/* monogram: the Hebrew letter qof, first letter of kesher */
+/* monogram: the Hebrew letter qof, first letter of redline */
 .mark { inline-size: 28px; block-size: 28px; flex: none; border-radius: 7px; display: grid; place-items: center; background: var(--rail-mark); color: var(--rail); font-family: "IBM Plex Sans Hebrew", var(--sans); font-weight: 600; font-size: 17px; line-height: 1; padding-block-end: 2px; }
 .side-label { font-size: var(--t-xs); color: var(--rail-soft); padding: var(--s4) var(--s2) var(--s1); }
 .side a { display: flex; align-items: center; gap: 10px; padding: 6px var(--s2); border-radius: var(--r-control); color: var(--rail-soft); text-decoration: none; font-weight: 500; transition: background-color var(--d-fast) ease, color var(--d-fast) ease; }

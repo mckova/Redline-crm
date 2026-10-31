@@ -1,6 +1,6 @@
 /** Light, dark, or follow the system. The resolved theme lives on <html data-theme>. */
 export type Theme = "light" | "dark" | "system";
-const KEY = "kesher.theme";
+const KEY = "redline.theme";
 const media = window.matchMedia("(prefers-color-scheme: dark)");
 
 export const theme = (): Theme => (localStorage.getItem(KEY) as Theme) || "system";

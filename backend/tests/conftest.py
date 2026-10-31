@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-os.environ["KESHER_SEED"] = "off"
-os.environ["KESHER_AI_WORKER"] = "off"
-os.environ["KESHER_AI"] = "off"
+os.environ["REDLINE_SEED"] = "off"
+os.environ["REDLINE_AI_WORKER"] = "off"
+os.environ["REDLINE_AI"] = "off"
 
 
 @pytest.fixture()

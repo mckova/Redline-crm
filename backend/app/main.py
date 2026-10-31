@@ -19,28 +19,28 @@ from .ai_api import router as ai_router
 from .api import install_error_handlers, router
 from . import db as dbmod
 
-FRONTEND_DIST = Path(os.environ.get("KESHER_FRONTEND", Path(__file__).resolve().parents[2] / "frontend" / "dist"))
+FRONTEND_DIST = Path(os.environ.get("REDLINE_FRONTEND", Path(__file__).resolve().parents[2] / "frontend" / "dist"))
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     dbmod.Base.metadata.create_all(dbmod.engine)
-    if os.environ.get("KESHER_SEED", "on") != "off":
+    if os.environ.get("REDLINE_SEED", "on") != "off":
         from .seed import seed_if_empty
 
         with dbmod.SessionLocal() as db:
             seed_if_empty(db)
-    stop = ai.start_worker(dbmod.SessionLocal) if os.environ.get("KESHER_AI_WORKER", "on") == "on" else None
+    stop = ai.start_worker(dbmod.SessionLocal) if os.environ.get("REDLINE_AI_WORKER", "on") == "on" else None
     yield
     if stop:
         stop.set()
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="KESHER CRM", version=__version__, lifespan=lifespan)
+    app = FastAPI(title="Redline CRM", version=__version__, lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=os.environ.get("KESHER_CORS", "http://localhost:5173").split(","),
+        allow_origins=os.environ.get("REDLINE_CORS", "http://localhost:5173").split(","),
         allow_methods=["*"],
         allow_headers=["*"],
     )

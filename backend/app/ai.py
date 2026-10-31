@@ -45,7 +45,7 @@ from .services import (
     update_record,
 )
 
-MODEL = os.environ.get("KESHER_AI_MODEL", "claude-opus-5-5")
+MODEL = os.environ.get("REDLINE_AI_MODEL", "claude-opus-5-5")
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
 MAX_AGENT_STEPS = 12
 
@@ -116,12 +116,12 @@ def set_client(client: Any) -> None:
 def ai_mode() -> str:
     """``live`` (real Claude), ``demo`` (offline scripted stand-in) or ``off``.
 
-    ``KESHER_AI``: ``auto`` (default: live when an API key is present, otherwise
+    ``REDLINE_AI``: ``auto`` (default: live when an API key is present, otherwise
     demo), ``on``/``live``, ``demo`` or ``off``.
     """
     if _client_override is not None:
         return "live"
-    setting = os.environ.get("KESHER_AI", "auto").lower()
+    setting = os.environ.get("REDLINE_AI", "auto").lower()
     if setting == "off":
         return "off"
     if setting == "demo":
@@ -144,7 +144,7 @@ def get_client():
         return _client_override
     mode = ai_mode()
     if mode == "off":
-        raise AIUnavailable("AI is not configured: set ANTHROPIC_API_KEY to enable KESHER's AI features.")
+        raise AIUnavailable("AI is not configured: set ANTHROPIC_API_KEY to enable Redline's AI features.")
     if mode == "demo":
         from .demo_ai import DemoClient
 
@@ -390,7 +390,7 @@ def describe_call(name: str, args: dict) -> str:
 
 # --------------------------------------------------------------------------- copilot agent
 
-COPILOT_SYSTEM = """You are the KESHER assistant, the AI teammate inside a sales CRM used by a small Israeli B2B sales team.
+COPILOT_SYSTEM = """You are the Redline assistant, the AI teammate inside a sales CRM used by a small Israeli B2B sales team.
 
 You can read anything in the CRM with your tools, and you can propose changes (create/update records, tasks, notes, lead conversion). Every change you propose is shown to the user as an approval card and only runs after they approve, so propose changes directly rather than asking for permission in text.
 
@@ -587,7 +587,7 @@ def draft_automation(prompt: str) -> dict:
     from .automations import TRIGGERS
 
     system = (
-        "Translate a sales-ops request into a KESHER automation rule.\n"
+        "Translate a sales-ops request into a Redline automation rule.\n"
         f"Triggers: {TRIGGERS}.\nRecord fields: {FIELD_GUIDE}. Money fields on records are stored in micros "
         "(amount_micros = ILS × 1,000,000), so a condition on deal size uses field amount_micros with the value in micros.\n"
         "Lead records also have score (0-100). Use changed_to for 'moves to/becomes'. "
@@ -705,7 +705,7 @@ def start_worker(session_factory, interval: float = 2.0) -> threading.Event:
                 pass
             stop.wait(interval)
 
-    threading.Thread(target=loop, name="kesher-ai-worker", daemon=True).start()
+    threading.Thread(target=loop, name="redline-ai-worker", daemon=True).start()
     return stop
 
 
@@ -713,7 +713,7 @@ def start_worker(session_factory, interval: float = 2.0) -> threading.Event:
 
 # --------------------------------------------------------------------------- proactive analysis
 
-AUTO_INSIGHT = os.environ.get("KESHER_AI_AUTO_INSIGHTS", "on") != "off"
+AUTO_INSIGHT = os.environ.get("REDLINE_AI_AUTO_INSIGHTS", "on") != "off"
 
 
 def _wants_auto_insight(event) -> bool:

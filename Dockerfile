@@ -11,7 +11,7 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ .
 COPY --from=web /web/dist /app/frontend/dist
-ENV KESHER_DATABASE_URL=sqlite:////data/kesher.db
+ENV REDLINE_DATABASE_URL=sqlite:////data/redline.db
 VOLUME /data
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

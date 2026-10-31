@@ -6,7 +6,7 @@ export const PLURAL: Record<RecordType, string> = {
   company: "companies", contact: "contacts", lead: "leads", deal: "deals", task: "tasks", note: "notes",
 };
 
-const TOKEN_KEY = "kesher.token";
+const TOKEN_KEY = "redline.token";
 export const auth = {
   get token() { return localStorage.getItem(TOKEN_KEY); },
   set(token: string | null) { token ? localStorage.setItem(TOKEN_KEY, token) : localStorage.removeItem(TOKEN_KEY); },
@@ -20,7 +20,7 @@ export async function api<T = any>(path: string, opts: { method?: string; body?:
     headers: { "Content-Type": "application/json", ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}) },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   });
-  if (res.status === 401) { auth.set(null); window.dispatchEvent(new Event("kesher:logout")); }
+  if (res.status === 401) { auth.set(null); window.dispatchEvent(new Event("redline:logout")); }
   if (!res.ok) {
     let msg = res.statusText;
     try { const j = await res.json(); msg = typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail); } catch { /* empty */ }

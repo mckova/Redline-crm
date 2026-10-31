@@ -1,2 +1,2 @@
-"""KESHER CRM backend."""
+"""Redline CRM backend."""
 __version__ = "1.0.0"
